@@ -10,7 +10,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.hardware.Camera
 import android.hardware.camera2.CameraCharacteristics
@@ -38,6 +37,7 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListener, Camera.PreviewCallback, CompoundButton.OnCheckedChangeListener, View.OnClickListener{
 
+//    lateinit var inputData: Any
     private val LOGGER: Logger = Logger()
     private val PERMISSIONS_REQUEST = 1
     private var handler: Handler? = null
@@ -45,7 +45,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     private val GALLARY_REQUEST_CODE = 123
 
     private val debug = false
-    var inputData: ByteArray? = null
+    public var inputData: ByteArray? = null
 
     private val PERMISSION_CAMERA = Manifest.permission.CAMERA
 
@@ -83,6 +83,10 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     var outer: View? = null
     var screenHeight: Int? = null
     var screenWidth: Int? = null
+
+    public fun setMode(useimg: Boolean){
+        useImage = useimg
+    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,6 +128,8 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
 //    imageView.setImageBitmap(croppedBitmap);
         label!!.bringToFront()
 
+//        progressBar!!.setOnTouchListener(OnDragTouchListener(progressBar!!));
+
         //    Toolbar toolbar = findViewById(R.id.toolbar);
 //    setSupportActionBar(toolbar);
 //    getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -156,11 +162,11 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             }
 
             override fun onSwipeBottom() {
-                if (useImage) {
-                    useImage = false
-                    inputData = null
-                    imageView!!.setImageURI(null)
-                }
+//                if (useImage) {
+//                    useImage = false
+//                    inputData = null
+//                    imageView!!.setImageURI(null)
+//                }
             }
         })
 
@@ -197,8 +203,17 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             } catch (e: IOException) {
                 e.printStackTrace()
             }
+
+//            var params = imageView!!.getLayoutParams();
+//            params.width = screenWidth!!
+//            params.height = screenHeight!!
+//// existing height is ok as is, no need to edit it
+//            imageView!!.setLayoutParams(params);
+
             imageView!!.setImageURI(imageData)
-//            imageView!!.setOnTouchListener(OnDragTouchListener(imageView));
+            imageView!!.animate().scaleX(1.toFloat()).alpha(1.toFloat())
+                .scaleY(1.toFloat()).alpha(1.toFloat()).x(0F).y(0F).setDuration(500).start()
+            imageView!!.setOnTouchListener(OnDragTouchListener(imageView, this));
 
 
 

@@ -147,7 +147,7 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 //    LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
 
         //    LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
-        if (inputData != null) {
+        if (useImage) {
             val cur = BitmapFactory.decodeByteArray(inputData, 0, inputData!!.size, null)
             rgbFrameBitmap = cur.copy(Bitmap.Config.ARGB_8888, true)
 //      final Canvas canvas = new Canvas(croppedBitmap);
@@ -186,6 +186,8 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
         runInBackground(
             Runnable { //            LOGGER.i("Running detection on image " + currTimestamp);
+                println("!!!!!!!!")
+                println(inputData == null)
 
                 var rawBitmap: Bitmap? = null
                 if (!useImage) {
