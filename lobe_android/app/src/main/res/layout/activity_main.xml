@@ -25,7 +25,7 @@
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black"
+
         android:orientation="vertical">
 
 <!--                &lt;!&ndash;        <androidx.constraintlayout.widget.ConstraintLayout&ndash;&gt;-->
@@ -94,13 +94,13 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
                     android:layout_marginStart="70dp"
-                    android:layout_marginTop="580dp"
+                    android:layout_marginTop="575dp"
                     android:layout_marginEnd="45dp"
                     android:layout_marginBottom="100dp"
                     android:gravity="center|left"
                     android:text="default"
                     android:textColor="@android:color/white"
-                    android:textSize="36sp"
+                    android:textSize="32sp"
                     tools:layout_editor_absoluteX="97dp"
                     tools:layout_editor_absoluteY="355dp"
                     android:layout_alignParentLeft="true"
@@ -139,7 +139,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="TODO"
-            android:scaleType="centerCrop" />
+            android:scaleType="fitXY" />
 
         <ImageView
             android:id="@+id/allWhite"

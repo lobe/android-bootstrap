@@ -13,7 +13,8 @@ package org.tensorflow.lite.examples.detection
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */import android.annotation.SuppressLint
+ */
+import android.annotation.SuppressLint
 import android.app.Fragment
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
@@ -22,6 +23,7 @@ import android.hardware.Camera.PreviewCallback
 import android.os.Build
 import android.os.Bundle
 import android.os.HandlerThread
+import android.util.DisplayMetrics
 import android.util.Size
 import android.util.SparseIntArray
 import android.view.LayoutInflater
@@ -29,14 +31,13 @@ import android.view.Surface
 import android.view.TextureView.SurfaceTextureListener
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
-import com.example.test.CameraConnectionFragment
 import com.example.test.CameraConnectionFragment.Companion.chooseOptimalSize
 import com.example.test.R
 import com.example.test.customview.AutoFitTextureView
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 
 class LegacyCameraConnectionFragment @SuppressLint("ValidFragment") constructor(
@@ -44,7 +45,9 @@ class LegacyCameraConnectionFragment @SuppressLint("ValidFragment") constructor(
     /** The layout identifier to inflate for this Fragment.  */
     private val layout: Int,
     private val desiredSize: Size,
-    useFront: Boolean
+    useFront: Boolean,
+    screenHeight: Int,
+    screenWidth: Int
 ) :
     Fragment() {
     companion object {
@@ -79,6 +82,8 @@ class LegacyCameraConnectionFragment @SuppressLint("ValidFragment") constructor(
     private var textureView: AutoFitTextureView? = null
     private var availableSurfaceTexture: SurfaceTexture? = null
     private var useFront = false
+    var screenHeight = 1000
+    var screenWidth = 1000
 
     /**
      * [TextureView.SurfaceTextureListener] handles several lifecycle events on a [ ].
@@ -186,7 +191,7 @@ class LegacyCameraConnectionFragment @SuppressLint("ValidFragment") constructor(
             }
 
             val previewSize: Size? = chooseOptimalSize(
-                sizes, desiredSize.width, desiredSize.height
+                sizes.copyOfRange(5,6), desiredSize.width, desiredSize.height
             )
             parameters!!.setPreviewSize(previewSize!!.width, previewSize!!.height)
             camera!!.setDisplayOrientation(90)
@@ -199,7 +204,9 @@ class LegacyCameraConnectionFragment @SuppressLint("ValidFragment") constructor(
         val s = camera!!.getParameters().previewSize
         camera!!.addCallbackBuffer(ByteArray(ImageUtils.getYUVByteSize(s.height, s.width)))
         textureView!!.setAspectRatio(s.height, s.width)
-        //    textureView.setAspectRatio(960, 1280);
+
+        textureView!!.setLayoutParams(FrameLayout.LayoutParams(10000, screenHeight))
+//        textureView?.setAspectRatio(960, 1280);
         camera!!.startPreview()
     }
 
@@ -227,5 +234,7 @@ class LegacyCameraConnectionFragment @SuppressLint("ValidFragment") constructor(
 
     init {
         this.useFront = useFront
+        this.screenHeight = screenHeight
+        this.screenWidth = screenWidth
     }
 }

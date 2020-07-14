@@ -10,12 +10,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.hardware.Camera
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.ImageReader
 import android.os.*
+import android.util.DisplayMetrics
 import android.util.Size
 import android.view.Surface
 import android.view.View
@@ -79,7 +81,8 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     var label: TextView? = null
     var progressBar: ProgressBar? = null
     var outer: View? = null
-
+    var screenHeight: Int? = null
+    var screenWidth: Int? = null
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +94,11 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         imageView = findViewById(R.id.myImageView)
         label = findViewById(R.id.textView)
         progressBar = findViewById(R.id.ProgressBar)
+
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        screenHeight = displayMetrics.heightPixels
+        screenWidth = displayMetrics.widthPixels
 
 
 //    outer.setOnTouchListener(new View.OnTouchListener() {
@@ -254,42 +262,41 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     }
 
     private fun takeScreenshot() {
-        val matrix = Matrix()
-        matrix.postRotate(90f)
-        val scaledBitmap =
-            Bitmap.createScaledBitmap(rgbFrameBitmap!!, previewWidth, previewHeight, true)
-        val rotatedBitmap = Bitmap.createBitmap(
-            scaledBitmap,
-            0,
-            0,
-            scaledBitmap.width,
-            scaledBitmap.height,
-            matrix,
-            true
-        )
-        imageView!!.setImageBitmap(rotatedBitmap)
-        progressBar!!.bringToFront()
-        label!!.bringToFront()
-        imageView!!.setImageBitmap(rotatedBitmap)
+
+        if (!useImage) {
+            val matrix = Matrix()
+            matrix.postRotate(90f)
+            var hehe = previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+            val scaledBitmap =
+                Bitmap.createScaledBitmap(rgbFrameBitmap!!, hehe!!.toInt(), screenHeight!!, true)
+            val rotatedBitmap = Bitmap.createBitmap(
+                scaledBitmap,
+                0,
+                0,
+                scaledBitmap.width,
+                scaledBitmap.height,
+                matrix,
+                true
+            )
+
+            var xixi = screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
+            var resizedbitmap1 = Bitmap.createBitmap(rotatedBitmap, 0, 0, xixi.toInt(), rotatedBitmap.height)
+
+            imageView!!.setImageBitmap(resizedbitmap1)
+            progressBar!!.bringToFront()
+            label!!.bringToFront()
+        }
 
         var iv: ImageView = findViewById(R.id.allWhite)
         iv.visibility = View.VISIBLE
-
         val animation: Animation =
             AlphaAnimation(0.toFloat(), 1.toFloat()) //to change visibility from visible to invisible
-
         animation.duration = 100 //1 second duration for each animation cycle
-
         animation.interpolator = LinearInterpolator()
         animation.repeatCount = 1 //repeating indefinitely
-
         animation.repeatMode = Animation.REVERSE //animation will start from end point once ended.
-
         iv!!.startAnimation(animation)
         iv.visibility = View.INVISIBLE
-//        takeScreenshot()
-
-
 
         val pattern = "yyyy-MM-dd-hh-mm-ss"
         val simpleDateFormat = SimpleDateFormat(pattern)
@@ -304,7 +311,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             println(storageLoc)
 
             // create bitmap screen capture
-            val v1 = window.decorView.rootView
+            val v1 = outer!!
             v1.isDrawingCacheEnabled = true
             val bitmap = Bitmap.createBitmap(v1.drawingCache)
             v1.isDrawingCacheEnabled = false
@@ -335,7 +342,10 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             // Several error may come out with file handling or DOM
             e.printStackTrace()
         }
-        imageView!!.setImageBitmap(null)
+
+        if (!useImage){
+            imageView!!.setImageBitmap(null)
+        }
     }
 
 
@@ -424,8 +434,12 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             this,
             getLayoutId(),
             getDesiredPreviewFrameSize(),
-            useFront
+            useFront,
+            screenHeight!!,
+            screenWidth!!
         )
+
+
         fragmentManager.beginTransaction().replace(R.id.container, fragment).commit()
     }
 

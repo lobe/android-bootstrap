@@ -34,7 +34,7 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     private val MINIMUM_CONFIDENCE_TF_OD_API = 0.5f
     private val MAINTAIN_ASPECT = false
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private val DESIRED_PREVIEW_SIZE = Size(1280, 720)
+    private val DESIRED_PREVIEW_SIZE = Size(1280, 960)
     private val SAVE_PREVIEW_BITMAP = false
     private val TEXT_SIZE_DIP = 10f
     var trackingOverlay: OverlayView? = null
