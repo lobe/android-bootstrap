@@ -106,25 +106,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         screenWidth = displayMetrics.widthPixels
 
 
-//    outer.setOnTouchListener(new View.OnTouchListener() {
-//      private GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-//        @Override
-//        public boolean onDoubleTap(MotionEvent e) {
-//          System.out.println( "onDoubleTap");
-//          return super.onDoubleTap(e);
-//        }
-//        ... // implement here other callback methods like onFling, onScroll as necessary
-//      });
-//
-//      @Override
-//      public boolean onTouch(View v, MotionEvent event) {
-//        Log.d("TEST", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
-//        gestureDetector.onTouchEvent(event);
-//        return true;
-//      }
-//    });
-
-
 //    imageView.setImageBitmap(croppedBitmap);
         label!!.bringToFront()
 
@@ -175,19 +156,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     }
 
 
-
-
-    //  public Bitmap takeScreenShot(View view) {
-    //    view.setDrawingCacheEnabled(true);
-    //    view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-    //    view.buildDrawingCache();
-    //    if (view.getDrawingCache() == null)
-    //      return null;
-    //    Bitmap snapshot = Bitmap.createBitmap(view.getDrawingCache());
-    //    view.setDrawingCacheEnabled(false);
-    //    view.destroyDrawingCache();
-    //    return snapshot;
-    //  }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GALLARY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             useImage = true

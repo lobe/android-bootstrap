@@ -179,18 +179,6 @@ public class OnDragTouchListener implements View.OnTouchListener {
     }
 
     private void onDragFinish(){
-//        mView.setVisibility(0);
-//        System.out.println("hahaha");
-//        mView.animate().scaleX(1).scaleY(1).start();
-//        try {
-//            sleep(500);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        mView.setImageBitmap(null);
-//        if (mOnDragActionListener != null) {
-//            mOnDragActionListener.onDragEnd(mView);
-//        }
 
         dX = 0;
         dY = 0;

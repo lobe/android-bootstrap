@@ -57,11 +57,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
     private var tracker: MultiBoxTracker? = null
 
-//    private var borderedText: BorderedText? = null
-
-
-
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onPreviewSizeChosen(size: Size?, rotation: Int) {
         val textSizePx = TypedValue.applyDimension(
@@ -154,9 +149,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 //      canvas.drawBitmap(cur, frameToCropTransform, null);
 //      croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Config.ARGB_8888);
         } else {
-//      System.out.println("in else: ");
-//      System.out.println(previewWidth);
-//      System.out.println(previewHeight);
             rgbFrameBitmap =
                 Bitmap.createBitmap(previewWidth, previewHeight, Bitmap.Config.ARGB_8888)
             rgbFrameBitmap!!.setPixels(
@@ -186,7 +178,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
         runInBackground(
             Runnable { //            LOGGER.i("Running detection on image " + currTimestamp);
-                println("!!!!!!!!")
                 println(inputData == null)
 
                 var rawBitmap: Bitmap? = null
