@@ -95,6 +95,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         label = findViewById(R.id.textView)
         progressBar = findViewById(R.id.ProgressBar)
 
+
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenHeight = displayMetrics.heightPixels
@@ -167,6 +168,9 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
 
     }
 
+
+
+
     //  public Bitmap takeScreenShot(View view) {
     //    view.setDrawingCacheEnabled(true);
     //    view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
@@ -194,6 +198,15 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
                 e.printStackTrace()
             }
             imageView!!.setImageURI(imageData)
+//            imageView!!.setOnTouchListener(OnDragTouchListener(imageView));
+
+
+
+//            var animSlide = AnimationUtils.loadAnimation(getApplicationContext(),
+//                R.anim.slide_animation);
+//
+//// Start the animation like this
+//            imageView!!.startAnimation(animSlide);
             //      imageView.bringToFront();
             progressBar!!.bringToFront()
             label!!.bringToFront()
@@ -266,9 +279,9 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         if (!useImage) {
             val matrix = Matrix()
             matrix.postRotate(90f)
-            var hehe = previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+            var targetWidth = previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
             val scaledBitmap =
-                Bitmap.createScaledBitmap(rgbFrameBitmap!!, hehe!!.toInt(), screenHeight!!, true)
+                Bitmap.createScaledBitmap(rgbFrameBitmap!!, targetWidth!!.toInt(), screenHeight!!, true)
             val rotatedBitmap = Bitmap.createBitmap(
                 scaledBitmap,
                 0,
@@ -279,8 +292,8 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
                 true
             )
 
-            var xixi = screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
-            var resizedbitmap1 = Bitmap.createBitmap(rotatedBitmap, 0, 0, xixi.toInt(), rotatedBitmap.height)
+            var w = screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
+            var resizedbitmap1 = Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
 
             imageView!!.setImageBitmap(resizedbitmap1)
             progressBar!!.bringToFront()
@@ -343,9 +356,9 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             e.printStackTrace()
         }
 
-        if (!useImage){
-            imageView!!.setImageBitmap(null)
-        }
+//        if (!useImage){
+//            imageView!!.setImageBitmap(null)
+//        }
     }
 
 

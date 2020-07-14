@@ -168,21 +168,10 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                 previewWidth,
                 previewHeight
             )
+
         }
 
         readyForNextImage()
-
-        val canvas = Canvas(croppedBitmap!!)
-        val transForImages = ImageUtils.getTransformationMatrix(
-            960, 1280,
-            300, 300,
-            0, MAINTAIN_ASPECT
-        )
-        if (inputData != null) {
-            canvas.drawBitmap(rgbFrameBitmap!!, transForImages, null)
-        } else {
-            canvas.drawBitmap(rgbFrameBitmap!!, frameToCropTransform!!, null)
-        }
 
         // For examining the actual TF input.
 
@@ -191,10 +180,62 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
             ImageUtils.saveBitmap(croppedBitmap)
         }
 
+//        var pv: ImageView = findViewById(R.id.debugbitmap)
+////        pv.setImageBitmap(croppedBitmap)
 
 
         runInBackground(
             Runnable { //            LOGGER.i("Running detection on image " + currTimestamp);
+
+                var rawBitmap: Bitmap? = null
+                if (!useImage) {
+                    val matrix = Matrix()
+                    matrix.postRotate(90f)
+                    var targetWidth = previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+                    val scaledBitmap =
+                        Bitmap.createScaledBitmap(rgbFrameBitmap!!, targetWidth!!.toInt(), screenHeight!!, true)
+                    val rotatedBitmap = Bitmap.createBitmap(
+                        scaledBitmap,
+                        0,
+                        0,
+                        scaledBitmap.width,
+                        scaledBitmap.height,
+                        matrix,
+                        true
+                    )
+
+                    var w = screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
+                    rawBitmap = Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
+                } else {
+                    rawBitmap = rgbFrameBitmap
+                }
+
+
+                val matrix = Matrix()
+                matrix.postRotate(90f)
+                var curWidth = rawBitmap!!.width
+                var curHeight = rawBitmap!!.height
+
+                var squareBitmap: Bitmap? = null
+                if (curHeight > curWidth) {
+                    squareBitmap = Bitmap.createBitmap(rawBitmap, 0, ((curHeight.toFloat() - curWidth.toFloat()) / 2.toFloat()).toInt(),  curWidth, curWidth)
+                } else {
+                    squareBitmap = Bitmap.createBitmap(rawBitmap, ((curWidth.toFloat() - curHeight.toFloat()) / 2.toFloat()).toInt(), 0,  curHeight, curHeight)
+                }
+
+                val canvas1 = Canvas(croppedBitmap!!)
+                val trans = ImageUtils.getTransformationMatrix(
+                    squareBitmap!!.width, squareBitmap!!.height,
+                    croppedBitmap!!.width, croppedBitmap!!.height,
+                    0, MAINTAIN_ASPECT
+                )
+
+                canvas1.drawBitmap(squareBitmap!!, trans, null)
+
+//                var pv: ImageView = findViewById(R.id.debugbitmap)
+//                pv.setImageBitmap(croppedBitmap)
+//                pv.bringToFront()
+
                 val startTime = SystemClock.uptimeMillis()
                 val results: List<Classifier.Recognition> =
                     detector!!.recognizeImage(croppedBitmap)
