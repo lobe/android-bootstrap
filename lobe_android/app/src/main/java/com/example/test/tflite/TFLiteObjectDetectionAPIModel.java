@@ -54,7 +54,7 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   private static final Logger LOGGER = new Logger();
 
   // Only return this many results.
-  private static final int NUM_DETECTIONS = 10;
+  private static final int NUM_DETECTIONS = 3;
   // Float model
   private static final float IMAGE_MEAN = 127.5f;
   private static final float IMAGE_STD = 127.5f;
@@ -78,6 +78,8 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   // numDetections: array of shape [Batchsize]
   // contains the number of detected boxes
   private float[] numDetections;
+
+  private int numLabels;
 
   private ByteBuffer imgData;
 
@@ -126,6 +128,8 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
 
     d.inputSize = inputSize;
 
+    d.numLabels = d.labels.size();
+
     try {
       d.tfLite = new Interpreter(loadModelFile(assetManager, modelFilename));
     } catch (Exception e) {
@@ -145,10 +149,10 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
     d.intValues = new int[d.inputSize * d.inputSize];
 
     d.tfLite.setNumThreads(NUM_THREADS);
-    d.outputLocations = new float[1][NUM_DETECTIONS][4];
+//    d.outputLocations = new float[1][NUM_DETECTIONS][4];
     d.outputClasses = new float[1][NUM_DETECTIONS];
-    d.outputScores = new float[1][NUM_DETECTIONS];
-    d.numDetections = new float[1];
+//    d.outputScores = new float[1][NUM_DETECTIONS];
+//    d.numDetections = new float[1];
     return d;
   }
 
@@ -182,17 +186,17 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
 
     // Copy the input data into TensorFlow.
     Trace.beginSection("feed");
-    outputLocations = new float[1][NUM_DETECTIONS][4];
-    outputClasses = new float[1][NUM_DETECTIONS];
-    outputScores = new float[1][NUM_DETECTIONS];
-    numDetections = new float[1];
+//    outputLocations = new float[1][NUM_DETECTIONS][4];
+    outputClasses = new float[1][numLabels];
+//    outputScores = new float[1][NUM_DETECTIONS];
+//    numDetections = new float[1];
 
     Object[] inputArray = {imgData};
     Map<Integer, Object> outputMap = new HashMap<>();
-    outputMap.put(0, outputLocations);
-    outputMap.put(1, outputClasses);
-    outputMap.put(2, outputScores);
-    outputMap.put(3, numDetections);
+    outputMap.put(0, outputClasses);
+//    outputMap.put(1, outputClasses);
+//    outputMap.put(2, outputScores);
+//    outputMap.put(3, numDetections);
     Trace.endSection();
 
     // Run the inference call.
@@ -207,25 +211,36 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
       // because on some models, they don't always output the same total number of detections
       // For example, your model's NUM_DETECTIONS = 20, but sometimes it only outputs 16 predictions
       // If you don't use the output's numDetections, you'll get nonsensical data
-    int numDetectionsOutput = Math.min(NUM_DETECTIONS, (int) numDetections[0]); // cast from float to integer, use min for safety
-      
+//    int numDetectionsOutput = Math.min(NUM_DETECTIONS, (int) numDetections[0]); // cast from float to integer, use min for safety
+    int numDetectionsOutput = 1;
+
     final ArrayList<Recognition> recognitions = new ArrayList<>(numDetectionsOutput);
     for (int i = 0; i < numDetectionsOutput; ++i) {
-      final RectF detection =
-          new RectF(
-              outputLocations[0][i][1] * inputSize,
-              outputLocations[0][i][0] * inputSize,
-              outputLocations[0][i][3] * inputSize,
-              outputLocations[0][i][2] * inputSize);
+      final RectF detection = null;
+//      final RectF detection =
+//          new RectF(
+//              outputLocations[0][i][1] * inputSize,
+//              outputLocations[0][i][0] * inputSize,
+//              outputLocations[0][i][3] * inputSize,
+//              outputLocations[0][i][2] * inputSize);
       // SSD Mobilenet V1 Model assumes class 0 is background class
       // in label file and class labels start from 1 to number_of_classes+1,
       // while outputClasses correspond to class index from 0 to number_of_classes
       int labelOffset = 1;
+
+      int maxAt = 0;
+      for (int j = 0; j < outputClasses[0].length; j++) {
+        maxAt = outputClasses[0][j] > outputClasses[0][maxAt] ? j : maxAt;
+      }
+
+      System.out.println(maxAt);
+
       recognitions.add(
           new Recognition(
               "" + i,
-              labels.get((int) outputClasses[0][i] + labelOffset),
-              outputScores[0][i],
+//              labels.get((int) outputClasses[0][i] + labelOffset),
+                  labels.get(maxAt),
+                  outputClasses[0][maxAt],
               detection));
     }
     Trace.endSection(); // "recognizeImage"
