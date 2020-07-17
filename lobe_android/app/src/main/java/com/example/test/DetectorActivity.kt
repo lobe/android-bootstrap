@@ -24,7 +24,7 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     private val LOGGER: Logger = Logger()
 
     // Configuration values for the prepackaged SSD model.
-    private val TF_OD_API_INPUT_SIZE = 448 //448
+    private val TF_OD_API_INPUT_SIZE = 448 // 448
     private val TF_OD_API_IS_QUANTIZED = true
     private val TF_OD_API_MODEL_FILE = "model_unquant.tflite"// "detect.tflite" // "model_unquant.tflite"
     private val TF_OD_API_LABELS_FILE = "file:///android_asset/labels.txt"// "file:///android_asset/labelmap.txt"// "file:///android_asset/labels.txt"
