@@ -48,12 +48,6 @@ android:background="#00000000">
     <!--        android:layout_width="fill_parent"-->
     <!--        android:layout_height="fill_parent"-->
 
-    <!--                        <Button-->
-    <!--                            android:id="@+id/button"-->
-    <!--                            android:layout_width="wrap_content"-->
-    <!--                            android:layout_height="wrap_content"-->
-    <!--                            android:onClick="onClickBtn"-->
-    <!--                            android:text="Button" />-->
 
     <FrameLayout
         android:id="@+id/container"
@@ -138,6 +132,14 @@ android:background="#00000000">
     android:visibility="invisible"
     app:layout_anchor="@+id/relativeLayout"
     app:layout_anchorGravity="center" />
+
+
+<!--    <Button-->
+<!--        android:id="@+id/button"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:onClick="onClickBtn"-->
+<!--        android:text="Button" />-->
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

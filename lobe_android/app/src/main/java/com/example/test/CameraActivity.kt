@@ -5,6 +5,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.app.Activity
+import android.app.ActivityOptions
 import android.app.Fragment
 import android.content.Context
 import android.content.Intent
@@ -130,6 +131,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
                     Intent.createChooser(intent, "Select Picture"),
                     GALLARY_REQUEST_CODE
                 )
+                overridePendingTransition(R.anim.slide_animation, R.anim.slide_animation);
             }
 
             override fun doubleTap() {
@@ -218,8 +220,10 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     open fun onClickBtn(v: View?) {
         println("button clicked")
 
-        val oa1: ObjectAnimator = ObjectAnimator.ofFloat(window.decorView.rootView, "scaleX", 1f, 0f)
-        val oa2: ObjectAnimator = ObjectAnimator.ofFloat(window.decorView.rootView, "scaleX", 0f, 1f)
+        var ctn: View = findViewById(R.id.container)
+
+        val oa1: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 1f, 0f)
+        val oa2: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 0f, 1f)
         oa1.setInterpolator(DecelerateInterpolator())
         oa2.setInterpolator(AccelerateDecelerateInterpolator())
         oa1.duration = 100
@@ -237,13 +241,16 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         oa1.start()
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun changeCam() {
-        val oa1: ObjectAnimator = ObjectAnimator.ofFloat(window.decorView.rootView, "scaleX", 1f, 0f)
-        val oa2: ObjectAnimator = ObjectAnimator.ofFloat(window.decorView.rootView, "scaleX", 0f, 1f)
+        var ctn: View = findViewById(R.id.container)
+
+        val oa1: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 1f, 0f)
+        val oa2: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 0f, 1f)
         oa1.setInterpolator(DecelerateInterpolator())
         oa2.setInterpolator(AccelerateDecelerateInterpolator())
-        oa1.duration = 100
-        oa2.duration = 100
+        oa1.duration = 200
+        oa2.duration = 200
         oa1.addListener(object : AnimatorListenerAdapter() {
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onAnimationEnd(animation: Animator?) {
