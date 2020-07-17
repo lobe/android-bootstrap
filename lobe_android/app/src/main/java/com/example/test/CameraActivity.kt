@@ -38,7 +38,6 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListener, Camera.PreviewCallback, CompoundButton.OnCheckedChangeListener, View.OnClickListener{
 
-//    lateinit var inputData: Any
     private val LOGGER: Logger = Logger()
     private val PERMISSIONS_REQUEST = 1
     private var handler: Handler? = null
@@ -46,7 +45,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     private val GALLARY_REQUEST_CODE = 123
 
     private val debug = false
-    public var inputData: ByteArray? = null
+    var inputData: ByteArray? = null
 
     private val PERMISSION_CAMERA = Manifest.permission.CAMERA
 
@@ -346,9 +345,9 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             e.printStackTrace()
         }
 
-//        if (!useImage){
-//            imageView!!.setImageBitmap(null)
-//        }
+        if (!useImage){
+            imageView!!.setImageBitmap(null)
+        }
     }
 
 
