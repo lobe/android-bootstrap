@@ -38,15 +38,15 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListener, Camera.PreviewCallback, CompoundButton.OnCheckedChangeListener, View.OnClickListener{
 
+    private val debug = false
+
     private val LOGGER: Logger = Logger()
     private val PERMISSIONS_REQUEST = 1
     private var handler: Handler? = null
     private var handlerThread: HandlerThread? = null
     private val GALLARY_REQUEST_CODE = 123
-
-    private val debug = false
-    var inputData: ByteArray? = null
-
+    var screenHeight: Int? = null
+    var screenWidth: Int? = null
     private val PERMISSION_CAMERA = Manifest.permission.CAMERA
 
     protected var previewWidth = 0
@@ -54,35 +54,18 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     private var isProcessingFrame = false
     private val yuvBytes = arrayOfNulls<ByteArray>(3)
     private var rgbBytes: IntArray? = null
-        private set
+    private var yRowStride = 0
     private var postInferenceCallback: Runnable? = null
     private var imageConverter: Runnable? = null
     var rgbFrameBitmap: Bitmap? = null
 
-    //  private LinearLayout bottomSheetLayout;
-    private var gestureLayout: LinearLayout? = null
-
-    //  private BottomSheetBehavior<LinearLayout> sheetBehavior;
-    protected var frameValueTextView: TextView? = null
-    protected var cropValueTextView: TextView? = null
-    protected var inferenceTimeTextView: TextView? = null
-
-    //  protected ImageView bottomSheetArrowImageView;
-    //  private ImageView plusImageView, minusImageView;
-    private var apiSwitchCompat: SwitchCompat? = null
-    private var threadsTextView: TextView? = null
     var useImage = false
     var useFront = false
-//    var inputData: ByteArray?
-
-    private var yRowStride = 0
-
     var imageView: ImageView? = null
     var label: TextView? = null
     var progressBar: ProgressBar? = null
     var outer: View? = null
-    var screenHeight: Int? = null
-    var screenWidth: Int? = null
+    var inputData: ByteArray? = null
 
     public fun setMode(useimg: Boolean){
         useImage = useimg
@@ -93,33 +76,21 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //    sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
-//    bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
         imageView = findViewById(R.id.myImageView)
         label = findViewById(R.id.textView)
         progressBar = findViewById(R.id.ProgressBar)
-
+        outer = findViewById(R.id.relativeLayout)
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
 
-
-//    imageView.setImageBitmap(croppedBitmap);
-        label!!.bringToFront()
-
-//        progressBar!!.setOnTouchListener(OnDragTouchListener(progressBar!!));
-
-        //    Toolbar toolbar = findViewById(R.id.toolbar);
-//    setSupportActionBar(toolbar);
-//    getSupportActionBar().setDisplayShowTitleEnabled(false);
         if (hasPermission()) {
             setFragment(false)
         } else {
             requestPermission()
         }
-        outer = findViewById(R.id.relativeLayout)
 
         outer!!.setOnTouchListener(object : OnSwipeTouchListener(this) {
             override fun onSwipeTop() {
@@ -134,26 +105,13 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             }
 
             override fun doubleTap() {
-                println("double tapped")
                 changeCam()
             }
 
             override fun tripleTap() {
-                println("tripple tapped")
-                        takeScreenshot();
-            }
-
-            override fun onSwipeBottom() {
-//                if (useImage) {
-//                    useImage = false
-//                    inputData = null
-//                    imageView!!.setImageURI(null)
-//                }
+                takeScreenshot();
             }
         })
-
-        label!!.bringToFront()
-
     }
 
 
@@ -172,31 +130,10 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
-//            var params = imageView!!.getLayoutParams();
-//            params.width = screenWidth!!
-//            params.height = screenHeight!!
-//// existing height is ok as is, no need to edit it
-//            imageView!!.setLayoutParams(params);
-
             imageView!!.setImageURI(imageData)
             imageView!!.animate().scaleX(1.toFloat()).alpha(1.toFloat())
                 .scaleY(1.toFloat()).alpha(1.toFloat()).x(0F).y(0F).setDuration(500).start()
             imageView!!.setOnTouchListener(OnDragTouchListener(imageView, this));
-
-
-
-//            var animSlide = AnimationUtils.loadAnimation(getApplicationContext(),
-//                R.anim.slide_animation);
-//
-//// Start the animation like this
-//            imageView!!.startAnimation(animSlide);
-            //      imageView.bringToFront();
-            progressBar!!.bringToFront()
-            label!!.bringToFront()
-
-//      imageView.setAlpha(127);
-            //TODO: action
         }
     }
 
@@ -216,34 +153,14 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         System.out.println("not implemented (should not be needed)")
     }
 
+    // for debugging purpose
     open fun onClickBtn(v: View?) {
-        println("button clicked")
-
-        var ctn: View = findViewById(R.id.container)
-
-        val oa1: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 1f, 0f)
-        val oa2: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 0f, 1f)
-        oa1.setInterpolator(DecelerateInterpolator())
-        oa2.setInterpolator(AccelerateDecelerateInterpolator())
-        oa1.duration = 100
-        oa2.duration = 100
-        oa1.addListener(object : AnimatorListenerAdapter() {
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-            override fun onAnimationEnd(animation: Animator?) {
-                super.onAnimationEnd(animation)
-//                imageView!!.setImageResource(R.drawable.frontSide)
-                useFront = !useFront
-                setFragment(useFront)
-                oa2.start()
-            }
-        })
-        oa1.start()
+        takeScreenshot()
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun changeCam() {
         var ctn: View = findViewById(R.id.container)
-
         val oa1: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 1f, 0f)
         val oa2: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 0f, 1f)
         oa1.setInterpolator(DecelerateInterpolator())
@@ -254,7 +171,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
-//                imageView!!.setImageResource(R.drawable.frontSide)
                 useFront = !useFront
                 setFragment(useFront)
                 oa2.start()
@@ -264,7 +180,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     }
 
     private fun takeScreenshot() {
-
         if (!useImage) {
             val matrix = Matrix()
             matrix.postRotate(90f)
@@ -280,13 +195,9 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
                 matrix,
                 true
             )
-
             var w = screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
             var resizedbitmap1 = Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
-
             imageView!!.setImageBitmap(resizedbitmap1)
-            progressBar!!.bringToFront()
-            label!!.bringToFront()
         }
 
         var iv: ImageView = findViewById(R.id.allWhite)
@@ -304,13 +215,8 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         val simpleDateFormat = SimpleDateFormat(pattern)
         val date: String = simpleDateFormat.format(Date())
         try {
-            // image naming and path  to include sd card  appending name you choose for file
-//            val mPath =
-//                Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg"
             val storageLoc =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) //context.getExternalFilesDir(null);
-
-            println(storageLoc)
 
             // create bitmap screen capture
             val v1 = outer!!
@@ -332,14 +238,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     0)
             }
-//            val imageFile = File(mPath)
-//            val outputStream = FileOutputStream(imageFile)
-//            val quality = 100
-//            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-//            outputStream.flush()
-//            outputStream.close()
-
-//      openScreenshot(imageFile);
         } catch (e: Throwable) {
             // Several error may come out with file handling or DOM
             e.printStackTrace()
@@ -349,12 +247,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             imageView!!.setImageBitmap(null)
         }
     }
-
-
-
-
-
-
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onPreviewFrame(bytes: ByteArray?, camera: Camera?) {
@@ -381,10 +273,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         yuvBytes[0] = bytes
         yRowStride = previewWidth
 
-        imageConverter = Runnable { //            System.out.println(bytes.length);
-            //            System.out.println(previewWidth);
-            //            System.out.println(previewWidth);
-            //            System.out.println(rgbBytes.length);
+        imageConverter = Runnable {
             ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes)
         }
 
@@ -396,11 +285,9 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     }
 
     override fun onCheckedChanged(p0: CompoundButton?, p1: Boolean) {
-        TODO("Not yet implemented")
     }
 
     override fun onClick(p0: View?) {
-        TODO("Not yet implemented")
     }
 
     private fun hasPermission(): Boolean {
@@ -440,8 +327,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             screenHeight!!,
             screenWidth!!
         )
-
-
         fragmentManager.beginTransaction().replace(R.id.container, fragment).commit()
     }
 
@@ -539,7 +424,6 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         LOGGER.d("onDestroy $this")
         super.onDestroy()
     }
-
 
     protected abstract fun onPreviewSizeChosen(size: Size?, rotation: Int)
     protected abstract fun processImage()

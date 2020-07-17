@@ -22,14 +22,12 @@ import java.util.*
 class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
     private val LOGGER: Logger = Logger()
-
     // Configuration values for the prepackaged SSD model.
     private val TF_OD_API_INPUT_SIZE = 448 // 448
     private val TF_OD_API_IS_QUANTIZED = true
     private val TF_OD_API_MODEL_FILE = "model_unquant.tflite"// "detect.tflite" // "model_unquant.tflite"
     private val TF_OD_API_LABELS_FILE = "file:///android_asset/labels.txt"// "file:///android_asset/labelmap.txt"// "file:///android_asset/labels.txt"
     private val MODE: DetectorMode = DetectorMode.TF_OD_API
-
     // Minimum detection confidence to track a detection.
     private val MINIMUM_CONFIDENCE_TF_OD_API = 0.5f
     private val MAINTAIN_ASPECT = false
@@ -39,22 +37,14 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     private val TEXT_SIZE_DIP = 10f
     var trackingOverlay: OverlayView? = null
     private var sensorOrientation: Int? = null
-
     private var detector: Classifier? = null
-
     private var lastProcessingTimeMs: Long = 0
-
-    //  private Bitmap rgbFrameBitmap = null;
     private var croppedBitmap: Bitmap? = null
     private var cropCopyBitmap: Bitmap? = null
-
     private var computingDetection = false
-
     private var timestamp: Long = 0
-
     private var frameToCropTransform: Matrix? = null
     private var cropToFrameTransform: Matrix? = null
-
     private var tracker: MultiBoxTracker? = null
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -64,12 +54,8 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
             TEXT_SIZE_DIP,
             resources.displayMetrics
         )
-
-
         tracker = MultiBoxTracker(this)
-
         var cropSize: Int = TF_OD_API_INPUT_SIZE
-
         try {
             detector = TFLiteObjectDetectionAPIModel.create(
                 assets,
@@ -121,7 +107,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                     }
                 }
             })
-
         tracker!!.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation!!)
     }
 
@@ -130,9 +115,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
         ++timestamp
         val currTimestamp = timestamp
         trackingOverlay!!.postInvalidate()
-
-        // No mutex needed as this method is not reentrant.
-
         // No mutex needed as this method is not reentrant.
         if (computingDetection) {
             readyForNextImage()
@@ -140,14 +122,9 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
         }
         computingDetection = true
 //    LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
-
-        //    LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
         if (useImage) {
             val cur = BitmapFactory.decodeByteArray(inputData, 0, inputData!!.size, null)
             rgbFrameBitmap = cur.copy(Bitmap.Config.ARGB_8888, true)
-//      final Canvas canvas = new Canvas(croppedBitmap);
-//      canvas.drawBitmap(cur, frameToCropTransform, null);
-//      croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Config.ARGB_8888);
         } else {
             rgbFrameBitmap =
                 Bitmap.createBitmap(previewWidth, previewHeight, Bitmap.Config.ARGB_8888)
@@ -160,26 +137,16 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                 previewWidth,
                 previewHeight
             )
-
         }
-
         readyForNextImage()
-
-        // For examining the actual TF input.
-
         // For examining the actual TF input.
         if (SAVE_PREVIEW_BITMAP) {
             ImageUtils.saveBitmap(croppedBitmap)
         }
 
-//        var pv: ImageView = findViewById(R.id.debugbitmap)
-////        pv.setImageBitmap(croppedBitmap)
-
-
         runInBackground(
-            Runnable { //            LOGGER.i("Running detection on image " + currTimestamp);
-                println(inputData == null)
-
+            Runnable {
+                //            LOGGER.i("Running detection on image " + currTimestamp);
                 var rawBitmap: Bitmap? = null
                 if (!useImage) {
                     val matrix = Matrix()
@@ -203,12 +170,10 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                     rawBitmap = rgbFrameBitmap
                 }
 
-
                 val matrix = Matrix()
                 matrix.postRotate(90f)
                 var curWidth = rawBitmap!!.width
                 var curHeight = rawBitmap!!.height
-
                 var squareBitmap: Bitmap? = null
                 if (curHeight > curWidth) {
                     squareBitmap = Bitmap.createBitmap(rawBitmap, 0, ((curHeight.toFloat() - curWidth.toFloat()) / 2.toFloat()).toInt(),  curWidth, curWidth)
@@ -224,11 +189,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                 )
 
                 canvas1.drawBitmap(squareBitmap!!, trans, null)
-
-//                var pv: ImageView = findViewById(R.id.debugbitmap)
-//                pv.setImageBitmap(croppedBitmap)
-//                pv.bringToFront()
-
                 val startTime = SystemClock.uptimeMillis()
                 val results: List<Classifier.Recognition> =
                     detector!!.recognizeImage(croppedBitmap)

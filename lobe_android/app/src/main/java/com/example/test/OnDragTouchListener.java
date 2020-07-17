@@ -56,14 +56,6 @@ public class OnDragTouchListener implements View.OnTouchListener {
         this(view, (View) view.getParent(), act, null);
     }
 
-//    public OnDragTouchListener(ImageView view, View parent) {
-//        this(view, parent, null);
-//    }
-//
-//    public OnDragTouchListener(ImageView view, OnDragActionListener onDragActionListener) {
-//        this(view, (View) view.getParent(), onDragActionListener);
-//    }
-
     public OnDragTouchListener(ImageView view, View parent, Activity act, OnDragActionListener onDragActionListener) {
         initListener(view, parent, act);
         setOnDragActionListener(onDragActionListener);
@@ -109,38 +101,11 @@ public class OnDragTouchListener implements View.OnTouchListener {
     public boolean onTouch(View v, MotionEvent event) {
         System.out.println(isDragging);
         if (isDragging) {
-
-
-//            ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) mView.getLayoutParams();
-//            params.width = (int) (mView.getWidth() * 100 / event.getRawX());
-//// existing height is ok as is, no need to edit it
-//            mView.setLayoutParams(params);
-
-
             float[] bounds = new float[4];
-            // LEFT
             bounds[0] = event.getRawX() + dX;
-//            if (bounds[0] < maxLeft) {
-//                bounds[0] = maxLeft;
-//            }
-//            // RIGHT
             bounds[2] = bounds[0] + width;
-//            if (bounds[2] > maxRight) {
-//                bounds[2] = maxRight;
-//                bounds[0] = bounds[2] - width;
-//            }
-//            // TOP
             bounds[1] = event.getRawY() + dY;
-//            if (bounds[1] < maxTop) {
-//                bounds[1] = maxTop;
-//            }
-//            // BOTTOM
             bounds[3] = bounds[1] + height;
-//            if (bounds[3] > maxBottom) {
-//                bounds[3] = maxBottom;
-//                bounds[1] = bounds[3] - height;
-//            }
-
             switch (event.getAction()) {
                 case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_DOWN:
@@ -148,15 +113,11 @@ public class OnDragTouchListener implements View.OnTouchListener {
                         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                         @Override
                         public void run() {
-//                            mView.setImageBitmap(null);
                             mAct.setMode(false);
                         }
                     }).start();
-//                    mView.animate().scaleX(1).setDuration(100).start();
-//                                        onDragFinish();
                     break;
                 case MotionEvent.ACTION_MOVE:
-//                    mView.animate().scaleX((float) 10/event.getRawX()).alpha((float) 0.5).x(bounds[0]).y(bounds[1]).setDuration(500).start();
                     break;
             }
             return true;
@@ -179,7 +140,6 @@ public class OnDragTouchListener implements View.OnTouchListener {
     }
 
     private void onDragFinish(){
-
         dX = 0;
         dY = 0;
         isDragging = false;
