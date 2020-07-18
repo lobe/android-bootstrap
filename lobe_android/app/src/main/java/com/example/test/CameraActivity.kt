@@ -5,7 +5,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.app.Activity
-import android.app.ActivityOptions
 import android.app.Fragment
 import android.content.Context
 import android.content.Intent
@@ -24,11 +23,11 @@ import android.view.View
 import android.view.animation.*
 import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
+import com.example.test.tflite.Classifier
 import org.tensorflow.lite.examples.detection.LegacyCameraConnectionFragment
 import java.io.*
 import java.text.SimpleDateFormat
@@ -67,8 +66,25 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     var outer: View? = null
     var inputData: ByteArray? = null
 
+    private val device: Classifier.Device = Classifier.Device.CPU
+
+    val nThreads: Int = 4
+    private val model: Classifier.Model = Classifier.Model.FLOAT_MOBILENET
+
+    fun getNumThreads(): Int {
+        return nThreads
+    }
+
     public fun setMode(useimg: Boolean){
         useImage = useimg
+    }
+
+    protected open fun getModel(): Classifier.Model? {
+        return model
+    }
+
+    protected open fun getDevice(): Classifier.Device? {
+        return device
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

@@ -24,7 +24,6 @@ import android.os.Trace;
 import com.example.test.env.Logger;
 
 import org.tensorflow.lite.Interpreter;
-import com.example.test.env.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -50,7 +49,7 @@ import java.util.Vector;
  * - https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
  * - https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_on_mobile_tensorflowlite.md#running-our-model-on-android
  */
-public class TFLiteObjectDetectionAPIModel implements Classifier {
+public class TFLiteObjectDetectionAPIModel implements Classifier_original {
   private static final Logger LOGGER = new Logger();
 
   // Only return this many results.
@@ -107,7 +106,7 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
    * @param inputSize The size of image input
    * @param isQuantized Boolean representing model is quantized or not
    */
-  public static Classifier create(
+  public static Classifier_original create(
       final AssetManager assetManager,
       final String modelFilename,
       final String labelFilename,

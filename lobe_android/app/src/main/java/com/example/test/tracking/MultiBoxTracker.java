@@ -31,7 +31,7 @@ import android.util.TypedValue;
 import com.example.test.env.BorderedText;
 import com.example.test.env.ImageUtils;
 import com.example.test.env.Logger;
-import com.example.test.tflite.Classifier.Recognition;
+import com.example.test.tflite.Classifier_original.Recognition;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -6,13 +6,14 @@ import android.os.Build
 import android.os.SystemClock
 import android.util.Size
 import android.util.TypedValue
-import android.widget.ImageView
+import android.view.InputDevice.getDevice
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.test.customview.OverlayView
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
 import com.example.test.tflite.Classifier
+import com.example.test.tflite.Classifier_original
 import com.example.test.tflite.TFLiteObjectDetectionAPIModel
 import com.example.test.tracking.MultiBoxTracker
 import java.io.IOException
@@ -24,7 +25,7 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     private val LOGGER: Logger = Logger()
     // Configuration values for the prepackaged SSD model.
     private val TF_OD_API_INPUT_SIZE = 448 // 448
-    private val TF_OD_API_IS_QUANTIZED = true
+    private val TF_OD_API_IS_QUANTIZED = false
     private val TF_OD_API_MODEL_FILE = "model_unquant.tflite"// "detect.tflite" // "model_unquant.tflite"
     private val TF_OD_API_LABELS_FILE = "file:///android_asset/labels.txt"// "file:///android_asset/labelmap.txt"// "file:///android_asset/labels.txt"
     private val MODE: DetectorMode = DetectorMode.TF_OD_API
@@ -47,6 +48,52 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     private var cropToFrameTransform: Matrix? = null
     private var tracker: MultiBoxTracker? = null
 
+    private var imageSizeX = 0
+
+    /** Input image size of the model along y axis.  */
+    private var imageSizeY = 0
+
+
+    private fun recreateClassifier(
+        model: Classifier.Model,
+        device: Classifier.Device,
+        numThreads: Int
+    ) {
+        if (detector != null) {
+            LOGGER.d("Closing classifier.")
+            detector!!.close()
+            detector = null
+        }
+        if (device === Classifier.Device.GPU
+            && (model === Classifier.Model.QUANTIZED_MOBILENET || model === Classifier.Model.QUANTIZED_EFFICIENTNET)
+        ) {
+            LOGGER.d("Not creating classifier: GPU doesn't support quantized models.")
+//            runOnUiThread {
+//                Toast.makeText(this, R.string.tfe_ic_gpu_quant_error, Toast.LENGTH_LONG).show()
+//            }
+            return
+        }
+        try {
+            LOGGER.d(
+                "Creating classifier (model=%s, device=%s, numThreads=%d)",
+                model,
+                device,
+                numThreads
+            )
+            detector = Classifier.create(this, model, device, numThreads)
+        } catch (e: IOException) {
+            LOGGER.e(
+                e,
+                "Failed to create classifier."
+            )
+        }
+
+        // Updates the input image size.
+        imageSizeX = detector!!.getImageSizeX()
+        imageSizeY = detector!!.getImageSizeY()
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onPreviewSizeChosen(size: Size?, rotation: Int) {
         val textSizePx = TypedValue.applyDimension(
@@ -57,13 +104,14 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
         tracker = MultiBoxTracker(this)
         var cropSize: Int = TF_OD_API_INPUT_SIZE
         try {
-            detector = TFLiteObjectDetectionAPIModel.create(
-                assets,
-                TF_OD_API_MODEL_FILE,
-                TF_OD_API_LABELS_FILE,
-                TF_OD_API_INPUT_SIZE,
-                TF_OD_API_IS_QUANTIZED
-            )
+            recreateClassifier(getModel()!!, getDevice()!!, getNumThreads())
+//            detector = TFLiteObjectDetectionAPIModel.create(
+//                assets,
+//                TF_OD_API_MODEL_FILE,
+//                TF_OD_API_LABELS_FILE,
+//                TF_OD_API_INPUT_SIZE,
+//                TF_OD_API_IS_QUANTIZED
+//            )
             cropSize = TF_OD_API_INPUT_SIZE
         } catch (e: IOException) {
             e.printStackTrace()
@@ -191,35 +239,35 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                 canvas1.drawBitmap(squareBitmap!!, trans, null)
                 val startTime = SystemClock.uptimeMillis()
                 val results: List<Classifier.Recognition> =
-                    detector!!.recognizeImage(croppedBitmap)
+                    detector!!.recognizeImage(croppedBitmap, sensorOrientation!!)
                 label!!.text = "" + results[0].getTitle()
                 progressBar!!.setProgress((results[0].getConfidence() * 100).toInt(), true)
-                lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime
-                cropCopyBitmap = Bitmap.createBitmap(croppedBitmap!!)
-                val canvas = Canvas(cropCopyBitmap!!)
-                val paint = Paint()
-                paint.color = Color.RED
-                paint.style = Paint.Style.STROKE
-                paint.strokeWidth = 2.0f
-                var minimumConfidence: Float =
-                    MINIMUM_CONFIDENCE_TF_OD_API
-                when (MODE) {
-                    DetectorMode.TF_OD_API -> minimumConfidence =
-                        MINIMUM_CONFIDENCE_TF_OD_API
-                }
-                val mappedRecognitions: MutableList<Classifier.Recognition> =
-                    LinkedList<Classifier.Recognition>()
-                for (result in results) {
-                    val location: RectF = result.getLocation()
-                    if (location != null && result.getConfidence() >= minimumConfidence) {
-                        //                canvas.drawRect(location, paint);
-                        cropToFrameTransform!!.mapRect(location)
-                        result.setLocation(location)
-                        mappedRecognitions.add(result)
-                    }
-                }
-                tracker!!.trackResults(mappedRecognitions, currTimestamp)
-                trackingOverlay!!.postInvalidate()
+//                lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime
+//                cropCopyBitmap = Bitmap.createBitmap(croppedBitmap!!)
+//                val canvas = Canvas(cropCopyBitmap!!)
+//                val paint = Paint()
+//                paint.color = Color.RED
+//                paint.style = Paint.Style.STROKE
+//                paint.strokeWidth = 2.0f
+//                var minimumConfidence: Float =
+//                    MINIMUM_CONFIDENCE_TF_OD_API
+//                when (MODE) {
+//                    DetectorMode.TF_OD_API -> minimumConfidence =
+//                        MINIMUM_CONFIDENCE_TF_OD_API
+//                }
+//                val mappedRecognitions: MutableList<Classifier.Recognition> =
+//                    LinkedList<Classifier.Recognition>()
+//                for (result in results) {
+//                    val location: RectF = result.getLocation()
+//                    if (location != null && result.getConfidence() >= minimumConfidence) {
+//                        //                canvas.drawRect(location, paint);
+//                        cropToFrameTransform!!.mapRect(location)
+//                        result.setLocation(location)
+//                        mappedRecognitions.add(result)
+//                    }
+//                }
+//                tracker!!.trackResults(mappedRecognitions, currTimestamp)
+//                trackingOverlay!!.postInvalidate()
                 computingDetection = false
             })
     }
