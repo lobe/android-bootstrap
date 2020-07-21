@@ -1,4 +1,4 @@
-0 Keyboard
-1 Trackpad
-2 Homepod
-3 Adam
+Keyboard
+Trackpad
+Homepod
+Adam

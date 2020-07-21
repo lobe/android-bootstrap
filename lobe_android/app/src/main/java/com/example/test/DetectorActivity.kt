@@ -105,13 +105,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
         var cropSize: Int = TF_OD_API_INPUT_SIZE
         try {
             recreateClassifier(getModel()!!, getDevice()!!, getNumThreads())
-//            detector = TFLiteObjectDetectionAPIModel.create(
-//                assets,
-//                TF_OD_API_MODEL_FILE,
-//                TF_OD_API_LABELS_FILE,
-//                TF_OD_API_INPUT_SIZE,
-//                TF_OD_API_IS_QUANTIZED
-//            )
             cropSize = TF_OD_API_INPUT_SIZE
         } catch (e: IOException) {
             e.printStackTrace()
