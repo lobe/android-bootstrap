@@ -1,2 +1,2 @@
-# android_bootstrap
-bootstrap an android app
+# Android Bootstrap
+bootstrap an android app from a model created with Lobe.
