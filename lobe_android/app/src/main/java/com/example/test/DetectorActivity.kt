@@ -68,9 +68,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
             && (model === Classifier.Model.QUANTIZED_MOBILENET || model === Classifier.Model.QUANTIZED_EFFICIENTNET)
         ) {
             LOGGER.d("Not creating classifier: GPU doesn't support quantized models.")
-//            runOnUiThread {
-//                Toast.makeText(this, R.string.tfe_ic_gpu_quant_error, Toast.LENGTH_LONG).show()
-//            }
             return
         }
         try {
@@ -162,7 +159,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
             return
         }
         computingDetection = true
-//    LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
         if (useImage) {
             val cur = BitmapFactory.decodeByteArray(inputData, 0, inputData!!.size, null)
             rgbFrameBitmap = cur.copy(Bitmap.Config.ARGB_8888, true)
@@ -187,7 +183,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
         runInBackground(
             Runnable {
-                //            LOGGER.i("Running detection on image " + currTimestamp);
                 var rawBitmap: Bitmap? = null
                 if (!useImage) {
                     val matrix = Matrix()
@@ -235,32 +230,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                     detector!!.recognizeImage(croppedBitmap, sensorOrientation!!)
                 label!!.text = "" + results[0].getTitle()
                 progressBar!!.setProgress((results[0].getConfidence() * 100).toInt(), true)
-//                lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime
-//                cropCopyBitmap = Bitmap.createBitmap(croppedBitmap!!)
-//                val canvas = Canvas(cropCopyBitmap!!)
-//                val paint = Paint()
-//                paint.color = Color.RED
-//                paint.style = Paint.Style.STROKE
-//                paint.strokeWidth = 2.0f
-//                var minimumConfidence: Float =
-//                    MINIMUM_CONFIDENCE_TF_OD_API
-//                when (MODE) {
-//                    DetectorMode.TF_OD_API -> minimumConfidence =
-//                        MINIMUM_CONFIDENCE_TF_OD_API
-//                }
-//                val mappedRecognitions: MutableList<Classifier.Recognition> =
-//                    LinkedList<Classifier.Recognition>()
-//                for (result in results) {
-//                    val location: RectF = result.getLocation()
-//                    if (location != null && result.getConfidence() >= minimumConfidence) {
-//                        //                canvas.drawRect(location, paint);
-//                        cropToFrameTransform!!.mapRect(location)
-//                        result.setLocation(location)
-//                        mappedRecognitions.add(result)
-//                    }
-//                }
-//                tracker!!.trackResults(mappedRecognitions, currTimestamp)
-//                trackingOverlay!!.postInvalidate()
                 computingDetection = false
             })
     }
