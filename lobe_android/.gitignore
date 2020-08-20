@@ -12,3 +12,5 @@
 /captures
 .externalNativeBuild
 .cxx
+/app/src/main/assets/detect.tflite
+/app/src/main/assets/labelmap.txt

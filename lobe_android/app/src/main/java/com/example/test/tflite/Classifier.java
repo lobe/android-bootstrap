@@ -101,7 +101,9 @@ public abstract class Classifier {
   private final TensorProcessor probabilityProcessor;
 
   /**
-   * Creates a classifier with the provided configuration.
+   * Creates a classifier with the provided configuration
+   *
+   * Perhaps in the future we can remove other model types from this example app
    *
    * @param activity The current Activity.
    * @param model The model to use for classification.

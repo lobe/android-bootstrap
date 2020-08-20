@@ -20,7 +20,7 @@ import android.app.Activity;
 import com.example.test.tflite.Classifier;
 
 import java.io.IOException;
-import com.example.test.tflite.Classifier.Device;
+
 import org.tensorflow.lite.support.common.TensorOperator;
 import org.tensorflow.lite.support.common.ops.NormalizeOp;
 

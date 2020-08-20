@@ -27,7 +27,6 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
 
   @Override
   public boolean onTouch(View v, MotionEvent event) {
-
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
         touchDownMs = System.currentTimeMillis();
@@ -70,9 +69,6 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
   }
 
   private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-
-
     private static final int SWIPE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 

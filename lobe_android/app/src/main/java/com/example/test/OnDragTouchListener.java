@@ -138,10 +138,4 @@ public class OnDragTouchListener implements View.OnTouchListener {
         }
         return false;
     }
-
-    private void onDragFinish(){
-        dX = 0;
-        dY = 0;
-        isDragging = false;
-    }
 }

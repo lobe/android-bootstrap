@@ -36,7 +36,6 @@ import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListener, Camera.PreviewCallback, CompoundButton.OnCheckedChangeListener, View.OnClickListener{
-
     private val debug = false
 
     private val LOGGER: Logger = Logger()
@@ -75,7 +74,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         return nThreads
     }
 
-    public fun setMode(useimg: Boolean){
+    fun setMode(useimg: Boolean){
         useImage = useimg
     }
 
@@ -218,8 +217,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
 
         var iv: ImageView = findViewById(R.id.allWhite)
         iv.visibility = View.VISIBLE
-        val animation: Animation =
-            AlphaAnimation(0.toFloat(), 1.toFloat()) //to change visibility from visible to invisible
+        val animation: Animation = AlphaAnimation(0.toFloat(), 1.toFloat()) //to change visibility from visible to invisible
         animation.duration = 100 //1 second duration for each animation cycle
         animation.interpolator = LinearInterpolator()
         animation.repeatCount = 1 //repeating indefinitely
@@ -231,8 +229,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         val simpleDateFormat = SimpleDateFormat(pattern)
         val date: String = simpleDateFormat.format(Date())
         try {
-            val storageLoc =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) //context.getExternalFilesDir(null);
+            val storageLoc = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
 
             // create bitmap screen capture
             val v1 = outer!!

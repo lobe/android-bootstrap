@@ -6,31 +6,22 @@ import android.os.Build
 import android.os.SystemClock
 import android.util.Size
 import android.util.TypedValue
-import android.view.InputDevice.getDevice
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.test.customview.OverlayView
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
 import com.example.test.tflite.Classifier
-import com.example.test.tflite.Classifier_original
-import com.example.test.tflite.TFLiteObjectDetectionAPIModel
 import com.example.test.tracking.MultiBoxTracker
 import java.io.IOException
-import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
     private val LOGGER: Logger = Logger()
-    // Configuration values for the prepackaged SSD model.
-    private val TF_OD_API_INPUT_SIZE = 448 // 448
-    private val TF_OD_API_IS_QUANTIZED = false
-    private val TF_OD_API_MODEL_FILE = "model_unquant.tflite"// "detect.tflite" // "model_unquant.tflite"
-    private val TF_OD_API_LABELS_FILE = "file:///android_asset/labels.txt"// "file:///android_asset/labelmap.txt"// "file:///android_asset/labels.txt"
-    private val MODE: DetectorMode = DetectorMode.TF_OD_API
+    private val TF_OD_API_INPUT_SIZE = 448
+
     // Minimum detection confidence to track a detection.
-    private val MINIMUM_CONFIDENCE_TF_OD_API = 0.5f
     private val MAINTAIN_ASPECT = false
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private val DESIRED_PREVIEW_SIZE = Size(1280, 960)

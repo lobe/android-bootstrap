@@ -17,7 +17,7 @@ package com.example.test.tflite;
 
 import android.app.Activity;
 import java.io.IOException;
-import com.example.test.tflite.Classifier.Device;
+
 import org.tensorflow.lite.support.common.TensorOperator;
 import org.tensorflow.lite.support.common.ops.NormalizeOp;
 
@@ -49,12 +49,12 @@ public class ClassifierFloatMobileNet extends Classifier {
 
   @Override
   protected String getModelPath() {
-    return "model_unquant_new.tflite";
+    return "model_unquant.tflite";
   }
 
   @Override
   protected String getLabelPath() {
-    return "labels_new.txt";
+    return "labels.txt";
   }
 
   @Override

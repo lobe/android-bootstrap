@@ -1,3 +1,4 @@
-0 Standing
-1 Sitting
-2 Not at desk
+Keyboard
+Trackpad
+Homepod
+Adam
