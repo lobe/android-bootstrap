@@ -12,5 +12,7 @@
 /captures
 .externalNativeBuild
 .cxx
+
+TODO: stop these from being auto downloaded
 /app/src/main/assets/detect.tflite
 /app/src/main/assets/labelmap.txt
