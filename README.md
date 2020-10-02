@@ -2,7 +2,7 @@
 
 [Lobe](http://lobe.ai/) is an easy-to-use free tool to help you start working with machine learning.
 
-This project was created to help you bootstrap your Lobe project on android. Built with [Kotlin]https://kotlinlang.org).
+This project was created to help you bootstrap your Lobe project on android. Built with [Kotlin](https://kotlinlang.org).
 
 ## Table of contents
 
