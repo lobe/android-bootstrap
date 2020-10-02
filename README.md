@@ -1,4 +1,4 @@
-<div style="text-align:center"><img src="https://github.com/lobe/android-bootstrap/raw/ImproveReadme/assets/header.png" /></div>
+<div style="text-align:center"><img src="https://github.com/lobe/android-bootstrap/raw/master/assets/header.png" /></div>
 
 [Lobe](http://lobe.ai/) is an easy-to-use free tool to help you start working with machine learning.
 
@@ -24,7 +24,7 @@ If you already have `git` installed, skip to [Step 2](#clone-this-repository).
 
 If you prefer to use the [GitHub Desktop](https://desktop.github.com) app, click on the "Code" button above and click "Open with GitHub Desktop":
 
-![](https://github.com/lobe/android-bootstrap/raw/ImproveReadme/assets/downloadProject.png)
+![](https://github.com/lobe/android-bootstrap/raw/master/assets/downloadProject.png)
 
 Otherwise, we need to install a few things:
 
@@ -35,7 +35,7 @@ First, [open a Terminal window](http//www.youtube.com/watch?v=zw7Nd67_aFw).
 Next, copy & paste the following into a Terminal window and hit return.
 
 ```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/ImproveReadme/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 brew doctor
 brew install git
 ```
@@ -60,7 +60,7 @@ Once you've trained a custom model in Lobe, you can drop it into your app.
 
 First, let's open your project in Lobe and export it by pressing `⌘E` and selecting Tensorflow Light:
 
-![Screenshot of Export sheet in Lobe](https://github.com/lobe/android-bootstrap/raw/ImproveReadme/assets/exportHeader.png)
+![Screenshot of Export sheet in Lobe](https://github.com/lobe/android-bootstrap/raw/master/assets/exportHeader.png)
 
 Once you have the Tensorflow Light model, rename it to `model_unquant.tflite` and drag it into this repo to replace the existing model files: 
 * `lobe_android/app/src/main/assets/model_unquant.tflite`
