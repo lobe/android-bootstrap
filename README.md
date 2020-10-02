@@ -2,7 +2,7 @@
 
 [Lobe](http://lobe.ai/) is an easy-to-use free tool to help you start working with machine learning.
 
-This project was created to help you bootstrap your Lobe project on android. Built with [SwiftUI](https://developer.apple.com/xcode/swiftui/) for Apple's android and iPadOS platforms.
+This project was created to help you bootstrap your Lobe project on android. Built with [Kotlin]https://kotlinlang.org).
 
 ## Table of contents
 
@@ -46,13 +46,11 @@ Now that we have installed `git`, you can clone this repo with the following com
 git clone https://github.com/lobe/android-bootstrap.git
 ```
 
-### Step 2 - Installing [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)
+### Step 2 - Installing [Android Studio](https://developer.android.com/studio)
 
-Next, we're going to install Xcode, a free tool from Apple, via the [App Store](https://apps.apple.com/us/app/xcode/id497799835?mt=12). This is a fairly straightforward process that could take an hour or more, as the Xcode app is pretty large.
+Next, we're going to install Android Studio, a free tool from Google, via the [their website](https://developer.android.com/studio). This is a fairly straightforward process that could take an hour or more, as the IDE app is pretty large.
 
-![Screenshot of XCode installation](https://github.com/lobe/android-bootstrap/raw/ImproveReadme/assets/xcodeDownload.png)
-
-Once it's done, double click on the `Lobe_android.xcodeproj` file in your project directory and it'll open in Xcode!
+Once it's done, open on this repository from inside Android Studio.
 
 Now we need to export your custom model from Lobe. If you'd like, you can skip to the [deploying your app](#deploying-your-app) section if you just want to see this app working with the default sample model.
 
@@ -60,45 +58,25 @@ Now we need to export your custom model from Lobe. If you'd like, you can skip t
 
 Once you've trained a custom model in Lobe, you can drop it into your app.
 
-First, let's open your project in Lobe and export it by pressing `⌘E` and selecting CoreML:
+First, let's open your project in Lobe and export it by pressing `⌘E` and selecting Tensorflow Light:
 
 ![Screenshot of Export sheet in Lobe](https://github.com/lobe/android-bootstrap/raw/ImproveReadme/assets/exportHeader.png)
 
-Once you have the CoreML model, rename it to `LobeModel.mlmodel` and drag it into the root of this repo to replace the exisiting sample model:
-
-![Illustration of Finder](https://github.com/lobe/android-bootstrap/raw/ImproveReadme/assets/modeldrag.png)
+Once you have the Tensorflow Light model, rename it to `model_unquant.tflite` and drag it into this repo to replace the existing model files: 
+* `lobe_android/app/src/main/assets/model_unquant.tflite`
+* `lobe_android/app/src/main/assets/labels.txt`
 
 And we're done! Next let's get it on your phone so you can see it work live.
 
 ## Deploying your app
 
-Next, we'll want to get this app onto your phone so you can see it working live with your device's camera. To do this, plug in your device via a USB-Lightning cable and, in the open Xcode window, press the play button in the top left corner of the window:
+Next, we'll want to get this app onto your phone so you can see it working live with your device's camera. To do this, plug in your device via a USB cable and, in the open Android Studio window, press the play button in the top right corner of the window.
 
-![Screenshot of Xcode](https://github.com/lobe/android-bootstrap/raw/ImproveReadme/assets/Xcode%20Play%20Button.png)
-
-And there you have it! You're app should be running on your device. If Xcode pops up a message asking you to setup your team, just follow the steps it suggests or [take a look here](https://stackoverflow.com/questions/40475094/how-to-specify-development-team-in-xcode#40476567). And finally, if you'd like to post your app (running your custom image classification model) to the App Store, you're more than welcome to do so. [Follow the instructions here](https://developer.apple.com/app-store/submitting/) to get the process rolling. You'll need to have an Apple Developer account.
+And there you have it! You're app should be running on your device. And finally, if you'd like to post your app (running your custom image classification model) to the Google Play Store, you're more than welcome to do so. [Follow the instructions here](https://support.google.com/googleplay/android-developer/answer/113469?hl=en) to get the process rolling. You'll need to have an Google Developer account.
 
 ## Tips and Tricks
 
-This app is meant as a starting place for your own project. Below is a high level overview of the project to get you started. Like any good bootstrap app, this project has been kept intentionally simple. There are only two main components in two files, `ContentView.swift` and `MyViewController.swift`.
-
-### `ContentView.swift`
-
-This file contains all the main UI, built using SwiftUI. If you'd like to adjust the placement of any UI elements or add you own, start here. If you'd like a primer on SwiftUI, start with this: [Build a SwiftUI app for android 14](https://designcode.io/swiftui2-course)
-
-### `MyViewController.swift`
-
-This file contains all parts that needed to be done using the old style UIKit. Mainly this is making the camera view. Luckily, this is all ported back to SwiftUI using Apple's `UIViewControllerRepresentable` API. This allows us to make the camera view, and then use it like any other SwiftUI view above. You'll also see the CoreML prediction call here.
-
-### `UpdateTextViewExternal.swift`
-
-Includes the small amount of SwiftUI for the prediction bar at the bottom of the screen.
-
-### Miscellaneous Pointers
-
-- This project contains a sample icon and other assets, feel free to use these or create your own.
-- When you're using the app, swiping up on the screen pulls open the image picker.
-- Double tapping flips the camera around to the front facing camera. Double tapping again flips the camera back to the front.
+This app is meant as a starting place for your own project. Below is a high level overview of the project to get you started. Like any good bootstrap app, this project has been kept intentionally simple. There are only two main components in two files, `CameraActivity.kt` and `DetectorActivity.kt`.
 
 ## Contributing
 
