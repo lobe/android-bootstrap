@@ -4,16 +4,6 @@
 
 This project was created to help you bootstrap your Lobe project on android. Built with [Kotlin](https://kotlinlang.org).
 
-## Table of contents
-
-In the next few sections we’ll take you through the basics of creating your new project and getting started. At a high level, we’ll go over:
-
-1. [Installing your Development Environment](#installing-your-development-environment)
-2. [Exporting your model from Lobe and integrating it into the code](#exporting-your-model)
-3. [Deploying your app on your device](#deploying-your-app)
-4. [Tips and Tricks for creating your own custom version of this app](#tips-and-tricks)
-5. [Contributing](#contributing)
-
 ## Installing Your Development Environment
 
 In this stage we’re going to get you setup so you can build, launch, and play with your app. These instructions are written for macOS, the only system you can develop android apps on.
@@ -54,7 +44,7 @@ Once it's done, open on this repository from inside Android Studio.
 
 Now we need to export your custom model from Lobe. If you'd like, you can skip to the [deploying your app](#deploying-your-app) section if you just want to see this app working with the default sample model.
 
-## Exporting your model
+### Step 3 - Exporting your model
 
 Once you've trained a custom model in Lobe, you can drop it into your app.
 
@@ -66,7 +56,7 @@ Once you have the Tensorflow Light model, rename it to `model_unquant.tflite` an
 
 And we're done! Next let's get it on your phone so you can see it work live.
 
-## Deploying your app
+### Step 4 - Deploying your app
 
 Next, we'll want to get this app onto your phone so you can see it working live with your device's camera. To do this, plug in your device via a USB cable and, in the open Android Studio window, press the play button in the top right corner of the window.
 
