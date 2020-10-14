@@ -18,7 +18,7 @@ If you prefer to use the [GitHub Desktop](https://desktop.github.com) app, click
 
 Otherwise, we need to install a few things:
 
-### Step 1 – Install [Homebrew](http://brew.sh/) and [Git](https://git-scm.com)
+### Step 1 - Install [Homebrew](http://brew.sh/) and [Git](https://git-scm.com)
 
 First, [open a Terminal window](http//www.youtube.com/watch?v=zw7Nd67_aFw).
 
