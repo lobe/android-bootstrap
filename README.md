@@ -60,7 +60,7 @@ And we're done! Next let's get it on your phone so you can see it work live.
 
 Next, we'll want to get this app onto your phone so you can see it working live with your device's camera. To do this, plug in your device via a USB cable and, in the open Android Studio window, press the play button in the top right corner of the window.
 
-And there you have it! You're app should be running on your device. And finally, if you'd like to post your app (running your custom image classification model) to the Google Play Store, you're more than welcome to do so. [Follow the instructions here](https://support.google.com/googleplay/android-developer/answer/113469?hl=en) to get the process rolling. You'll need to have an Google Developer account.
+And there you have it! Your app should be running on your device. And finally, if you'd like to post your app (running your custom image classification model) to the Google Play Store, you're more than welcome to do so. [Follow the instructions here](https://support.google.com/googleplay/android-developer/answer/113469?hl=en) to get the process rolling. You'll need to have an Google Developer account.
 
 ## Tips and Tricks
 
@@ -68,7 +68,7 @@ This app is meant as a starting place for your own project. Below is a high leve
 
 ## Contributing
 
-If you can think of anything you'd like to add, or bugs you find, please reach out! PRs will be openly accepted (if they keep project simple, bonus points for making it even simplier) and issues will be triaged.
+If you can think of anything you'd like to add, or bugs you find, please reach out! PRs will be openly accepted (if they keep project simple, bonus points for making it even simpler) and issues will be triaged.
 
 For project ideas or feedback, please visit our community on [Reddit](https://www.reddit.com/r/Lobe/)!
 
