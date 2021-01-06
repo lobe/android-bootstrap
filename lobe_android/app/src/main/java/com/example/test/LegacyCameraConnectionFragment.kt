@@ -1,5 +1,7 @@
 package org.tensorflow.lite.examples.detection
 /*
+ * Copyright 2021 Microsoft. All Rights Reserved.
+ *
  * Copyright 2019 The TensorFlow Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +15,8 @@ package org.tensorflow.lite.examples.detection
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This file has been modified by Microsoft to add support for using Lobe exported models.
  */
 import android.annotation.SuppressLint
 import android.app.Fragment

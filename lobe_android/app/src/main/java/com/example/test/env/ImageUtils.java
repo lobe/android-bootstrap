@@ -1,4 +1,7 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+/*
+Copyright 2021 Microsoft. All Rights Reserved.
+
+Copyright 2019 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -11,6 +14,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+This file has been modified by Microsoft to add support for using Lobe exported models.
 ==============================================================================*/
 
 package com.example.test.env;
@@ -20,6 +25,7 @@ import android.graphics.Matrix;
 import android.os.Environment;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Calendar;
 
 /** Utility class for manipulating images. */
 public class ImageUtils {
@@ -51,7 +57,7 @@ public class ImageUtils {
    * @param bitmap The bitmap to save.
    */
   public static void saveBitmap(final Bitmap bitmap) {
-    saveBitmap(bitmap, "preview.png");
+    saveBitmap(bitmap, "preview"+ Calendar.getInstance().getTimeInMillis()+".png");
   }
 
   /**
@@ -61,22 +67,15 @@ public class ImageUtils {
    * @param filename The location to save the bitmap to.
    */
   public static void saveBitmap(final Bitmap bitmap, final String filename) {
-    final String root =
-        Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "tensorflow";
+    final File root =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     LOGGER.i("Saving %dx%d bitmap to %s.", bitmap.getWidth(), bitmap.getHeight(), root);
-    final File myDir = new File(root);
 
-    if (!myDir.mkdirs()) {
-      LOGGER.i("Make dir failed");
-    }
 
-    final String fname = filename;
-    final File file = new File(myDir, fname);
-    if (file.exists()) {
-      file.delete();
-    }
+    final File file = new File(root,  filename);
     try {
       final FileOutputStream out = new FileOutputStream(file);
+      //final FileOutputStream out = openFileOutput(file);
       bitmap.compress(Bitmap.CompressFormat.PNG, 99, out);
       out.flush();
       out.close();

@@ -24,14 +24,12 @@ android {
         }
     }
     aaptOptions {
-        noCompress "tflite"
+        noCompress "tflite", "json"
     }
 }
 
 project.ext.ASSET_DIR = projectDir.toString() + '/src/main/assets'
 project.ext.TMP_DIR   = project.buildDir.toString() + '/downloads'
-
-apply from:'download_model.gradle'
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])

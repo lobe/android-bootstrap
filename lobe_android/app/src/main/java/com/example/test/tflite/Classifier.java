@@ -1,4 +1,7 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+/*
+Copyright 2021 Microsoft. All Rights Reserved.
+
+Copyright 2019 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -11,6 +14,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+This file has been modified by Microsoft to add support for using Lobe exported models.
 ==============================================================================*/
 
 package com.example.test.tflite;
@@ -27,6 +32,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import com.example.test.env.Logger;
@@ -215,8 +224,22 @@ public abstract class Classifier {
     tfliteOptions.setNumThreads(numThreads);
     tflite = new Interpreter(tfliteModel, tfliteOptions);
 
-    // Loads labels out from the label file.
-    labels = FileUtil.loadLabels(activity, getLabelPath());
+    // Loads labels out from the signature file.
+    String json = new String(FileUtil.loadByteFromFile(activity, getLabelPath()), "UTF-8");
+    JSONObject jsonObject = null;
+    try {
+      jsonObject = new JSONObject(json);
+      JSONArray jArr = jsonObject.getJSONObject("classes").getJSONArray("Label");
+      labels = new ArrayList<String>();
+      try {
+        for (int i=0, l=jArr.length(); i<l; i++){
+          labels.add(jArr.getString(i));
+        }
+      } catch (JSONException e) {}
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
 
     // Reads type and shape of input and output tensors, respectively.
     int imageTensorIndex = 0;
@@ -224,6 +247,8 @@ public abstract class Classifier {
     imageSizeY = imageShape[1];
     imageSizeX = imageShape[2];
     DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
+    // First output is the predicted label
+    // Second output is the array of confidences.
     int probabilityTensorIndex = 0;
     int[] probabilityShape =
         tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
