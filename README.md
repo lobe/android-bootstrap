@@ -1,4 +1,4 @@
-<div style="text-align:center"><img src="https://github.com/lobe/android-bootstrap/raw/master/assets/header.png" /></div>
+<div style="text-align:center"><img src="https://github.com/lobe/android-bootstrap/raw/main/assets/header.jpg" /></div>
 
 [Lobe](http://lobe.ai/) is an easy-to-use free tool to help you start working with machine learning.
 
