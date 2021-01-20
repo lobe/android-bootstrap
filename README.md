@@ -50,9 +50,9 @@ Once you've trained a custom model in Lobe, you can drop it into your app.
 
 First, let's open your project in Lobe and export it by pressing `⌘E` and selecting Tensorflow Light.
 
-Once you have the Tensorflow Light model, rename it to `model_unquant.tflite` and drag it into this repo to replace the existing model files: 
-* `lobe_android/app/src/main/assets/model_unquant.tflite`
-* `lobe_android/app/src/main/assets/labels.txt`
+Once you have the Tensorflow Light model drag it into this repo to replace the existing model files: 
+* `lobe_android/app/src/main/assets/saved_model.tflite`
+* `lobe_android/app/src/main/assets/signature.json`
 
 And we're done! Next let's get it on your phone so you can see it work live.
 
