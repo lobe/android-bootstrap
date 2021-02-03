@@ -40,7 +40,7 @@ git clone https://github.com/lobe/android-bootstrap.git
 
 Next, we're going to install Android Studio, a free tool from Google, via the [their website](https://developer.android.com/studio). This is a fairly straightforward process that could take an hour or more, as the IDE app is pretty large.
 
-Once it's done, open on this repository from inside Android Studio.
+Once it's done, open the `lobe_android` folder in this repository from inside Android Studio. Gradle will start downloading the SDK's as needed, and you will need to accept the licenses within Android Studio (follow the text prompt in the build output at the bottom)
 
 Now we need to export your custom model from Lobe. If you'd like, you can skip to the [deploying your app](#deploying-your-app) section if you just want to see this app working with the default sample model.
 
