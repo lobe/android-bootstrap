@@ -6,7 +6,7 @@ This project was created to help you bootstrap your Lobe project on android. Bui
 
 ## Installing Your Development Environment
 
-In this stage we’re going to get you setup so you can build, launch, and play with your app. These instructions are written for macOS, the only system you can develop android apps on.
+In this stage we’re going to get you setup so you can build, launch, and play with your app.
 
 To start, we’re going to download ("clone") this repository.
 
