@@ -12,7 +12,6 @@ import com.example.test.customview.OverlayView
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
 import com.example.test.tflite.Classifier
-import com.example.test.tracking.MultiBoxTracker
 import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -27,7 +26,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     private val DESIRED_PREVIEW_SIZE = Size(1280, 960)
     private val SAVE_PREVIEW_BITMAP = false
     private val TEXT_SIZE_DIP = 10f
-    var trackingOverlay: OverlayView? = null
     private var sensorOrientation: Int? = null
     private var detector: Classifier? = null
     private var lastProcessingTimeMs: Long = 0
@@ -37,7 +35,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     private var timestamp: Long = 0
     private var frameToCropTransform: Matrix? = null
     private var cropToFrameTransform: Matrix? = null
-    private var tracker: MultiBoxTracker? = null
 
     private var imageSizeX = 0
 
@@ -89,7 +86,7 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
             TEXT_SIZE_DIP,
             resources.displayMetrics
         )
-        tracker = MultiBoxTracker(this)
+
         var cropSize: Int = TF_OD_API_INPUT_SIZE
         try {
             recreateClassifier(getModel()!!, getDevice()!!, getNumThreads())
@@ -125,25 +122,12 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
         cropToFrameTransform = Matrix()
         frameToCropTransform!!.invert(cropToFrameTransform)
-
-        trackingOverlay = findViewById(R.id.tracking_overlay) as OverlayView
-        trackingOverlay!!.addCallback(
-            object : OverlayView.DrawCallback {
-                override fun drawCallback(canvas: Canvas?) {
-                    tracker!!.draw(canvas)
-                    if (isDebug()) {
-                        tracker!!.drawDebug(canvas)
-                    }
-                }
-            })
-        tracker!!.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation!!)
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun processImage() {
         ++timestamp
         val currTimestamp = timestamp
-        trackingOverlay!!.postInvalidate()
         // No mutex needed as this method is not reentrant.
         if (computingDetection) {
             readyForNextImage()
