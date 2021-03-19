@@ -8,7 +8,6 @@ import android.util.Size
 import android.util.TypedValue
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.example.test.customview.OverlayView
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
 import com.example.test.tflite.Classifier
@@ -25,12 +24,9 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private val DESIRED_PREVIEW_SIZE = Size(1280, 960)
     private val SAVE_PREVIEW_BITMAP = false
-    private val TEXT_SIZE_DIP = 10f
     private var sensorOrientation: Int? = null
     private var detector: Classifier? = null
-    private var lastProcessingTimeMs: Long = 0
     private var croppedBitmap: Bitmap? = null
-    private var cropCopyBitmap: Bitmap? = null
     private var computingDetection = false
     private var timestamp: Long = 0
     private var frameToCropTransform: Matrix? = null
@@ -81,12 +77,6 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onPreviewSizeChosen(size: Size?, rotation: Int) {
-        val textSizePx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            TEXT_SIZE_DIP,
-            resources.displayMetrics
-        )
-
         var cropSize: Int = TF_OD_API_INPUT_SIZE
         try {
             recreateClassifier(getModel()!!, getDevice()!!, getNumThreads())
