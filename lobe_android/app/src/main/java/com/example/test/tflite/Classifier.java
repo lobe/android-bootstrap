@@ -123,7 +123,7 @@ public abstract class Classifier {
   public static Classifier create(Activity activity, Model model, Device device, int numThreads)
       throws IOException {
         if (model == Model.FLOAT_MOBILENET) {
-      return new ClassifierFloatMobileNet(activity, device, numThreads);
+      return new ImageClassifier(activity, device, numThreads);
     } else {
       throw new UnsupportedOperationException();
     }
