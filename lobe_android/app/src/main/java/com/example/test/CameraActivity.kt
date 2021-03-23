@@ -3,6 +3,7 @@ package com.example.test
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Fragment
@@ -93,6 +94,14 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         listView = findViewById(R.id.list_view)
         adapter = PredictionAdapter(this)
         listView!!.adapter = adapter
+        listView!!.setOnItemClickListener(object : AdapterView.OnItemClickListener {
+            override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                adapter!!.toggleCountShown()
+            }
+
+        })
+        var transition = listView!!.getLayoutTransition()
+        transition.enableTransitionType(LayoutTransition.CHANGING)
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)

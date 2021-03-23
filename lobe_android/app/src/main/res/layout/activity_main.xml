@@ -46,7 +46,7 @@
         <ListView
             android:id="@+id/list_view"
             android:layout_width="match_parent"
-            android:layout_height="230dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/roundedcorners"
             android:cacheColorHint="@android:color/transparent"
             android:choiceMode="none"
@@ -54,6 +54,7 @@
             android:listSelector="@android:color/transparent"
             android:overScrollMode="never"
             android:paddingBottom="8dp"
+            android:animateLayoutChanges="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

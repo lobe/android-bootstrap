@@ -12,22 +12,30 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import com.example.test.tflite.Classifier
 import kotlin.math.max
+import kotlin.math.min
 
 class PredictionAdapter(context: Context) : BaseAdapter() {
 
-    private var sList = arrayOf(
+    private val MAX_COUNT_SHOWN: Int = 3
+    private val mInflator: LayoutInflater
+    private val context: Context
+
+    private var mList = arrayOf(
         Classifier.Recognition("0", "one", 0.8f, null),
         Classifier.Recognition("1", "two", 0.15f, null),
         Classifier.Recognition("2", "three", 0.05f, null)
     )
+    private var mCountToShow: Int = MAX_COUNT_SHOWN
 
-    private val mInflator: LayoutInflater
-    private val context: Context
 
     fun setItems(predictions: List<Classifier.Recognition>) {
-        sList = predictions.toTypedArray();
+        var num = min(predictions.count(), mCountToShow) - 1
+        mList = predictions.toTypedArray().sliceArray(0..num);
         (this.context as Activity).runOnUiThread(Runnable { notifyDataSetChanged() })
+    }
 
+    fun toggleCountShown() {
+        this.mCountToShow = if (this.mCountToShow == 1) MAX_COUNT_SHOWN else 1
     }
 
     init {
@@ -36,11 +44,11 @@ class PredictionAdapter(context: Context) : BaseAdapter() {
     }
 
     override fun getCount(): Int {
-        return sList.size
+        return mList.size
     }
 
     override fun getItem(position: Int): Any {
-        return sList[position]
+        return mList[position]
     }
 
     override fun getItemId(position: Int): Long {
