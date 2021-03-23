@@ -30,12 +30,11 @@ import org.tensorflow.lite.support.common.ops.NormalizeOp;
 public class ImageClassifier extends Classifier {
 
   /**
-   * Model does not need normalization in post-processing. Setting mean and std as 0.0f
-   * and 1.0f, repectively, to bypass the normalization.
+   * Requires additional normalization of the used input.
    */
-  private static final float IMAGE_MEAN = 0.0f;
+  private static final float IMAGE_MEAN = 127.5f;
 
-  private static final float IMAGE_STD = 1.0f;
+  private static final float IMAGE_STD = 127.5f;
 
   /**
    * Model does not need dequantization in the post-processing. Setting mean and std as 0.0f
