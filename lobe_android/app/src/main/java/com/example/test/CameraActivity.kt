@@ -10,8 +10,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
 import android.graphics.Matrix
 import android.hardware.Camera
 import android.hardware.camera2.CameraCharacteristics
@@ -40,23 +38,20 @@ import java.util.*
 
 class PredictionAdapter(context: Context) : BaseAdapter() {
 
-        internal var sList = arrayOf(
-            Classifier.Recognition("0", "one", 0.8f, null),
-            Classifier.Recognition("1", "two", 0.15f, null),
-            Classifier.Recognition("2", "three", 0.05f, null)
-        )
-
-    fun setItems(predictions: List<Classifier.Recognition>)
-    {
-
-            sList = predictions.toTypedArray();
-
-        (this.context as Activity)!!.runOnUiThread(Runnable { notifyDataSetChanged() })
-
-    }
+    private var sList = arrayOf(
+        Classifier.Recognition("0", "one", 0.8f, null),
+        Classifier.Recognition("1", "two", 0.15f, null),
+        Classifier.Recognition("2", "three", 0.05f, null)
+    )
 
     private val mInflator: LayoutInflater
     private val context: Context
+
+    fun setItems(predictions: List<Classifier.Recognition>) {
+        sList = predictions.toTypedArray();
+        (this.context as Activity)!!.runOnUiThread(Runnable { notifyDataSetChanged() })
+
+    }
 
     init {
         this.mInflator = LayoutInflater.from(context)
@@ -75,13 +70,11 @@ class PredictionAdapter(context: Context) : BaseAdapter() {
         return position.toLong()
     }
 
-    // override other abstract methods here
     @RequiresApi(Build.VERSION_CODES.N)
     override fun getView(position: Int, convertView: View?, container: ViewGroup?): View? {
 
         var convertView: View? = convertView
-        if (convertView == null)
-        {
+        if (convertView == null) {
             convertView = this.mInflator.inflate(R.layout.customlistview, container, false)
         }
 
@@ -94,46 +87,14 @@ class PredictionAdapter(context: Context) : BaseAdapter() {
         if (position == 0) {
             progressBar!!.setProgress((item.confidence * 100).toInt(), true)
             progressBar!!.secondaryProgress = 10
-        }
-        else
-        {
+        } else {
             progressBar!!.setProgress(0, true)
             progressBar!!.secondaryProgress = Math.max(10, (item.confidence * 100).toInt())
-
         }
-        //label!!.text = "" + results[0].getTitle()
-        //progressBar!!.setProgress((results[0].getConfidence() * 100).toInt(), true)
-       // computingDetection = false
 
         return convertView
-
-        /*
-        var convertView: View? = convertView
-        val vh: ListRowHolder
-        if (convertView == null) {
-            convertView = this.mInflator.inflate(android.R.layout.simple_list_item_1, container, false)
-            //convertView = this.mInflator.inflate(android.R.layout.simple_list_item_1, container, false)
-            vh = ListRowHolder(convertView)
-            convertView!!.tag = vh
-    } else {
-        vh = convertView.tag as ListRowHolder
-    }
-
-        //(convertView!!.findViewById<View>(android.R.id.text1) as TextView)
-            //.setText(getItem(position).toString())
-        vh.label.text = sList[position].title
-        return convertView*/
     }
 }
-/*
-private class ListRowHolder(row: View?) {
-    public val label: TextView
-
-    init {
-        this.label = row?.findViewById(R.id.label) as TextView
-    }
-}
-*/
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener,

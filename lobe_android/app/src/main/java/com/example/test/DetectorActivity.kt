@@ -90,7 +90,7 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
         }
 
         previewWidth = size!!.width
-        previewHeight = size!!.height
+        previewHeight = size.height
 
         sensorOrientation = rotation - getScreenOrientation()
         LOGGER.i(
@@ -115,7 +115,6 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun processImage() {
         ++timestamp
-        val currTimestamp = timestamp
         // No mutex needed as this method is not reentrant.
         if (computingDetection) {
             readyForNextImage()
@@ -146,16 +145,16 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
 
         runInBackground(
             Runnable {
-                var rawBitmap: Bitmap? = null
+                var rawBitmap: Bitmap?
                 if (!useImage) {
                     val matrix = Matrix()
                     matrix.postRotate(90f)
                     var targetWidth =
-                        previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+                        previewWidth.toFloat() / previewHeight.toFloat() * screenHeight!!.toFloat()
                     val scaledBitmap =
                         Bitmap.createScaledBitmap(
                             rgbFrameBitmap!!,
-                            targetWidth!!.toInt(),
+                            targetWidth.toInt(),
                             screenHeight!!,
                             true
                         )
@@ -180,8 +179,8 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
                 val matrix = Matrix()
                 matrix.postRotate(90f)
                 var curWidth = rawBitmap!!.width
-                var curHeight = rawBitmap!!.height
-                var squareBitmap: Bitmap? = null
+                var curHeight = rawBitmap.height
+                var squareBitmap: Bitmap?
                 if (curHeight > curWidth) {
                     squareBitmap = Bitmap.createBitmap(
                         rawBitmap,
@@ -202,20 +201,16 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
 
                 val canvas1 = Canvas(croppedBitmap!!)
                 val trans = ImageUtils.getTransformationMatrix(
-                    squareBitmap!!.width, squareBitmap!!.height,
+                    squareBitmap.width, squareBitmap.height,
                     croppedBitmap!!.width, croppedBitmap!!.height,
                     0, MAINTAIN_ASPECT
                 )
 
                 canvas1.drawBitmap(squareBitmap!!, trans, null)
-                val startTime = SystemClock.uptimeMillis()
                 val results: List<Classifier.Recognition> =
                     detector!!.recognizeImage(croppedBitmap, sensorOrientation!!)
 
                 adapter!!.setItems(results)
-
-                //label!!.text = "" + results[0].getTitle()
-                //progressBar!!.setProgress((results[0].getConfidence() * 100).toInt(), true)
                 computingDetection = false
             })
     }

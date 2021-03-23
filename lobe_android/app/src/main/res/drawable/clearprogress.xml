@@ -29,7 +29,7 @@
                     android:endColor="#00ddb3"
                     android:startColor="#00ddb3" />
             </shape>
-            </scale>
+        </scale>
     </item>
 
 </layer-list>
