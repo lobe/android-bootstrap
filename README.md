@@ -17,7 +17,7 @@
 
 ## Additional Information
 
-The version of Android Studio that we recommend is 4.1 or higher. That will make sure your models run faster and more efficiently.
+We recommend Android Studio 4.1 or higher. This version of Android Studio will make sure your models run and load faster and more efficiently.
 
 ## Contributing
 
