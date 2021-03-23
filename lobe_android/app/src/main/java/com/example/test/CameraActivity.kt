@@ -6,22 +6,17 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Fragment
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.hardware.Camera
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.media.ImageReader
 import android.os.*
 import android.util.DisplayMetrics
 import android.util.Size
-import android.view.LayoutInflater
 import android.view.Surface
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.*
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -34,67 +29,6 @@ import org.tensorflow.lite.examples.detection.LegacyCameraConnectionFragment
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
-
-
-class PredictionAdapter(context: Context) : BaseAdapter() {
-
-    private var sList = arrayOf(
-        Classifier.Recognition("0", "one", 0.8f, null),
-        Classifier.Recognition("1", "two", 0.15f, null),
-        Classifier.Recognition("2", "three", 0.05f, null)
-    )
-
-    private val mInflator: LayoutInflater
-    private val context: Context
-
-    fun setItems(predictions: List<Classifier.Recognition>) {
-        sList = predictions.toTypedArray();
-        (this.context as Activity)!!.runOnUiThread(Runnable { notifyDataSetChanged() })
-
-    }
-
-    init {
-        this.mInflator = LayoutInflater.from(context)
-        this.context = context
-    }
-
-    override fun getCount(): Int {
-        return sList.size
-    }
-
-    override fun getItem(position: Int): Any {
-        return sList[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    override fun getView(position: Int, convertView: View?, container: ViewGroup?): View? {
-
-        var convertView: View? = convertView
-        if (convertView == null) {
-            convertView = this.mInflator.inflate(R.layout.customlistview, container, false)
-        }
-
-        var progressBar: ProgressBar? = convertView!!.findViewById(R.id.customProgressBar)
-        var textView: TextView? = convertView!!.findViewById(R.id.customTextView)
-
-        var item = (this.getItem(position) as Classifier.Recognition);
-        textView!!.text = item.title
-
-        if (position == 0) {
-            progressBar!!.setProgress((item.confidence * 100).toInt(), true)
-            progressBar!!.secondaryProgress = 10
-        } else {
-            progressBar!!.setProgress(0, true)
-            progressBar!!.secondaryProgress = Math.max(10, (item.confidence * 100).toInt())
-        }
-
-        return convertView
-    }
-}
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener,
@@ -123,8 +57,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     var useImage = false
     var useFront = false
     var imageView: ImageView? = null
-    var label: TextView? = null
-    var progressBar: ProgressBar? = null
     var outer: View? = null
     var inputData: ByteArray? = null
     var listView: ListView? = null
@@ -195,7 +127,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         })
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GALLARY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             useImage = true
@@ -223,7 +154,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         val byteBuffer = ByteArrayOutputStream()
         val bufferSize = 1024
         val buffer = ByteArray(bufferSize)
-        var len = 0
+        var len: Int
         while (inputStream.read(buffer).also { len = it } != -1) {
             byteBuffer.write(buffer, 0, len)
         }
@@ -265,11 +196,11 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             val matrix = Matrix()
             matrix.postRotate(90f)
             var targetWidth =
-                previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+                previewWidth.toFloat() / previewHeight.toFloat() * screenHeight!!.toFloat()
             val scaledBitmap =
                 Bitmap.createScaledBitmap(
                     rgbFrameBitmap!!,
-                    targetWidth!!.toInt(),
+                    targetWidth.toInt(),
                     screenHeight!!,
                     true
                 )
@@ -298,7 +229,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         animation.interpolator = LinearInterpolator()
         animation.repeatCount = 1 //repeating indefinitely
         animation.repeatMode = Animation.REVERSE //animation will start from end point once ended.
-        iv!!.startAnimation(animation)
+        iv.startAnimation(animation)
         iv.visibility = View.INVISIBLE
 
         val pattern = "yyyy-MM-dd-hh-mm-ss"
@@ -362,7 +293,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             }
         } catch (e: Exception) {
             throw java.lang.Exception(e)
-            return
         }
 
         isProcessingFrame = true
@@ -413,7 +343,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     protected open fun setFragment(useFront: Boolean) {
-        val cameraId: String? = chooseCamera()
         val fragment: Fragment
         fragment = LegacyCameraConnectionFragment(
             this,
@@ -424,31 +353,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             screenWidth!!
         )
         fragmentManager.beginTransaction().replace(R.id.container, fragment).commit()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun chooseCamera(): String? {
-        val manager =
-            getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        try {
-            for (cameraId in manager.cameraIdList) {
-                val characteristics =
-                    manager.getCameraCharacteristics(cameraId)
-
-                // We don't use a front facing camera in this sample.
-                val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
-                    continue
-                }
-                val map =
-                    characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-                        ?: continue
-                return cameraId
-            }
-        } catch (e: java.lang.Exception) {
-            LOGGER.e(e, "Not allowed to access camera")
-        }
-        return null
     }
 
     protected open fun getScreenOrientation(): Int {
