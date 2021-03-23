@@ -211,8 +211,11 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
                 val startTime = SystemClock.uptimeMillis()
                 val results: List<Classifier.Recognition> =
                     detector!!.recognizeImage(croppedBitmap, sensorOrientation!!)
-                label!!.text = "" + results[0].getTitle()
-                progressBar!!.setProgress((results[0].getConfidence() * 100).toInt(), true)
+
+                adapter!!.setItems(results)
+
+                //label!!.text = "" + results[0].getTitle()
+                //progressBar!!.setProgress((results[0].getConfidence() * 100).toInt(), true)
                 computingDetection = false
             })
     }

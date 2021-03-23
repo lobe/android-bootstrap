@@ -44,50 +44,27 @@ android:background="#00000000">
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-<ListView
-      android:id="@+id/list_view"
-      android:layout_width="match_parent"
-      android:layout_height="100dp"
-    android:minHeight="500dp"
-    android:layout_marginBottom="100dp"
-    app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <ProgressBar
-        android:id="@+id/ProgressBar"
-        style="?android:attr/progressBarStyleHorizontal"
+
+    <ListView
+        android:listSelector="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="@android:color/transparent"
+        android:choiceMode="none"
+        android:overScrollMode="never"
+        android:id="@+id/list_view"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="620dp"
-        android:layout_marginBottom="40dp"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:indeterminate="false"
-        android:progress="80"
-        android:progressDrawable="@drawable/greenprogress"
+        android:layout_height="230dp"
+        android:paddingBottom="8dp"
+        android:background="@drawable/roundedcorners"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/relativeLayout"
-        app:layout_constraintTop_toTopOf="@+id/relativeLayout" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_height="50dp"
-        android:layout_width="match_parent"
-        android:layout_marginTop="620dp"
-        android:layout_marginBottom="40dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:elevation="1dp"
-        android:gravity="center|left"
-        android:text="default"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/relativeLayout"
-        app:layout_constraintTop_toTopOf="@+id/relativeLayout"
-        android:fontFamily="@font/labgrotesque"/>
-
+    <!--app:layout_constraintStart_toStartOf="@+id/relativeLayout"
+    app:layout_constraintTop_toTopOf="@+id/relativeLayout"-->
 </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
