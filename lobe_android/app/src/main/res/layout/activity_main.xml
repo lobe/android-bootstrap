@@ -44,6 +44,14 @@ android:background="#00000000">
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+<ListView
+      android:id="@+id/list_view"
+      android:layout_width="match_parent"
+      android:layout_height="100dp"
+    android:minHeight="500dp"
+    android:layout_marginBottom="100dp"
+    app:layout_constraintBottom_toBottomOf="parent"/>
+
     <ProgressBar
         android:id="@+id/ProgressBar"
         style="?android:attr/progressBarStyleHorizontal"

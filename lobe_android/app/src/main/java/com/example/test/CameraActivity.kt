@@ -18,8 +18,10 @@ import android.media.ImageReader
 import android.os.*
 import android.util.DisplayMetrics
 import android.util.Size
+import android.view.LayoutInflater
 import android.view.Surface
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.*
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -32,6 +34,60 @@ import org.tensorflow.lite.examples.detection.LegacyCameraConnectionFragment
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
+
+
+class MyAdapter(context: Context) : BaseAdapter() {
+
+        internal var sList = arrayOf(
+    "one",
+    "two",
+    "three"
+    )
+    private val mInflator: LayoutInflater
+
+    init {
+        this.mInflator = LayoutInflater.from(context)
+    }
+
+    override fun getCount(): Int {
+        return sList.size
+    }
+
+    override fun getItem(position: Int): Any {
+        return sList[position]
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    // override other abstract methods here
+    override fun getView(position: Int, convertView: View, container: ViewGroup): View? {
+        var convertView: View? = convertView
+        val vh: ListRowHolder
+        if (convertView == null) {
+            convertView = this.mInflator.inflate(android.R.layout.simple_list_item_1, container, false)
+            //convertView = this.mInflator.inflate(android.R.layout.simple_list_item_1, container, false)
+            vh = ListRowHolder(convertView)
+            convertView!!.tag = vh
+    } else {
+        vh = convertView.tag as ListRowHolder
+    }
+
+        //(convertView!!.findViewById<View>(android.R.id.text1) as TextView)
+            //.setText(getItem(position).toString())
+        vh.label.text = sList[position]
+        return convertView
+    }
+}
+
+private class ListRowHolder(row: View?) {
+    public val label: TextView
+
+    init {
+        this.label = row?.findViewById(R.id.label) as TextView
+    }
+}
 
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -65,6 +121,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     var progressBar: ProgressBar? = null
     var outer: View? = null
     var inputData: ByteArray? = null
+    var listView: ListView? = null
 
     private val device: Classifier.Device = Classifier.Device.CPU
 
@@ -96,6 +153,16 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         label = findViewById(R.id.textView)
         progressBar = findViewById(R.id.ProgressBar)
         outer = findViewById(R.id.relativeLayout)
+        listView = findViewById(R.id.list_view)
+        val adapter = MyAdapter(this)
+        /*val adapter = ArrayAdapter<String>(
+            this, android.R.layout.simple_list_item_1, arrayOf(
+                "one",
+                "two",
+                "three"
+            )
+        );*/
+        listView!!.adapter = adapter
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
