@@ -147,7 +147,7 @@ public abstract class Classifier {
             }
             LOGGER.d("Version: $version");
             if (!SUPPORTED_VERSIONS.contains(version)) {
-                String versionMessage = "Lobe export model version $this.version not explicitly supported by this code. Supported versions are [$SUPPORTED_VERSIONS]. You can comment out this error to double check the model code will work, or please pull latest changes from https://github.com/lobe/web-bootstrap or file an issue for support.";
+                String versionMessage = "The model version $this.version you are using for this starter project may not be compatible with the supported versions [$SUPPORTED_VERSIONS]. Please update both this starter project and Lobe to latest versions, and try exporting your model again. If the issue persists, please contact us at lobesupport@microsoft.com";
                 LOGGER.e(versionMessage);
                 throw new Error(versionMessage);
             }
