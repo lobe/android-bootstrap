@@ -62,6 +62,8 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     var inputData: ByteArray? = null
     var listView: ListView? = null
     var adapter: PredictionAdapter? = null
+    var galleryImageView: ImageView? = null
+    var flipImageView: ImageView? = null
 
     private val device: Classifier.Device = Classifier.Device.CPU
 
@@ -91,6 +93,24 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
 
         imageView = findViewById(R.id.myImageView)
         outer = findViewById(R.id.relativeLayout)
+
+        galleryImageView = findViewById(R.id.galleryImageView)
+        flipImageView = findViewById(R.id.flipImageView)
+
+
+        galleryImageView!!.setOnClickListener(object: View.OnClickListener {
+            override fun onClick(p0: View?) {
+                showImageSelect()
+            }
+        })
+
+        flipImageView!!.setOnClickListener(object: View.OnClickListener {
+            override fun onClick(p0: View?) {
+                changeCam()
+            }
+
+        })
+
         listView = findViewById(R.id.list_view)
         adapter = PredictionAdapter(this)
         listView!!.adapter = adapter
@@ -115,25 +135,22 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         }
 
         outer!!.setOnTouchListener(object : OnSwipeTouchListener(this) {
-            override fun onSwipeTop() {
-                val intent = Intent()
-                intent.type = "image/*"
-                intent.action = Intent.ACTION_GET_CONTENT
-                startActivityForResult(
-                    Intent.createChooser(intent, "Select Picture"),
-                    GALLARY_REQUEST_CODE
-                )
-                overridePendingTransition(R.anim.slide_animation, R.anim.slide_animation);
-            }
-
             override fun doubleTap() {
-                changeCam()
-            }
-
-            override fun tripleTap() {
                 takeScreenshot();
             }
         })
+    }
+
+    private fun showImageSelect()
+    {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(
+            Intent.createChooser(intent, "Select Picture"),
+            GALLARY_REQUEST_CODE
+        )
+        overridePendingTransition(R.anim.slide_animation, R.anim.slide_animation);
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
