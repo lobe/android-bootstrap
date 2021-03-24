@@ -15,6 +15,7 @@
         android:paddingBottom="4dp"
         android:progress="80"
         android:progressDrawable="@drawable/clearprogress"
+        android:animateLayoutChanges="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -30,6 +31,7 @@
         android:textColor="@android:color/white"
         android:textFontWeight="500"
         android:textSize="36sp"
+        android:animateLayoutChanges="true"
         app:layout_constraintEnd_toEndOf="@id/customProgressBar"
         app:layout_constraintStart_toStartOf="@id/customProgressBar"
         app:layout_constraintTop_toTopOf="@id/customProgressBar" />

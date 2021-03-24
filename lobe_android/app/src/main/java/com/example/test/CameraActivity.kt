@@ -16,6 +16,7 @@ import android.media.ImageReader
 import android.os.*
 import android.util.DisplayMetrics
 import android.util.Size
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.MotionEvent.*
 import android.view.Surface
@@ -25,6 +26,9 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
 import com.example.test.tflite.Classifier
@@ -153,13 +157,42 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             }
         })
 
-
         listView = findViewById(R.id.list_view)
         adapter = PredictionAdapter(this)
         listView!!.adapter = adapter
+        var expanded = true
         listView!!.onItemClickListener = object : AdapterView.OnItemClickListener {
             override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                adapter!!.toggleCountShown()
+
+                val displayMetrics: DisplayMetrics = resources.displayMetrics
+                val dp =
+                    Math.round(p0!!.height / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
+
+                val distance = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, dp - 94f,
+                    resources.displayMetrics
+                )
+                if (expanded) {
+                    val spring: SpringForce = SpringForce(distance)
+                        .setDampingRatio(0.8f)
+                        .setStiffness(300f)
+
+                    val slideOutAnimation =
+                        SpringAnimation(p0, DynamicAnimation.TRANSLATION_Y, distance).setSpring(
+                            spring
+                        )
+                    slideOutAnimation.start()
+                } else {
+
+                    val spring: SpringForce = SpringForce(0f)
+                        .setDampingRatio(0.9f)
+                        .setStiffness(300f)
+
+                    val slideInAnimation =
+                        SpringAnimation(p0, DynamicAnimation.TRANSLATION_Y, 0f).setSpring(spring)
+                    slideInAnimation.start()
+                }
+                expanded = !expanded
             }
 
         }
