@@ -3,6 +3,7 @@ package com.example.test
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +11,8 @@ import android.widget.BaseAdapter
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.view.animation.PathInterpolatorCompat
 import com.example.test.tflite.Classifier
-import kotlin.math.max
 import kotlin.math.min
 
 class PredictionAdapter(context: Context) : BaseAdapter() {
@@ -69,13 +70,25 @@ class PredictionAdapter(context: Context) : BaseAdapter() {
         var item = (this.getItem(position) as Classifier.Recognition);
         textView!!.text = item.title
 
-        if (position == 0) {
-            progressBar!!.setProgress((item.confidence * 100).toInt(), true)
-            progressBar.secondaryProgress = 10
-        } else {
-            progressBar!!.setProgress(0, true)
-            progressBar.secondaryProgress = max(10, (item.confidence * 100).toInt())
-        }
+
+        val displayMetrics: DisplayMetrics = this.context.resources.displayMetrics
+        val dpWidth =
+            Math.round(container!!.width / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
+
+        val minProgress = 32.0f / dpWidth * 100.0f
+
+        val confidence: Float =
+            ((100.0f - minProgress) / 100.0f) * (item.confidence * 100.0f) + minProgress
+
+        val anim = ProgressBarAnimation(
+            progressBar!!,
+            if (position == 0) progressBar!!.progress * 1.0f else progressBar!!.secondaryProgress * 1.0f,
+            confidence,
+            position == 0
+        )
+        anim.duration = 300
+        anim.interpolator = PathInterpolatorCompat.create(0.420f, 0.000f, 0.580f, 1.000f)
+        progressBar.startAnimation(anim)
 
         return view
     }

@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.media.ImageReader
 import android.os.Build
-import android.os.SystemClock
 import android.util.Size
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -209,7 +208,6 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
                 canvas1.drawBitmap(squareBitmap!!, trans, null)
                 val results: List<Classifier.Recognition> =
                     detector!!.recognizeImage(croppedBitmap, sensorOrientation!!)
-
                 adapter!!.setItems(results)
                 computingDetection = false
             })
