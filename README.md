@@ -5,7 +5,7 @@
 
 ## Get Started
 
-1. Clone, fork or download the project on your computer and install (Android Studio)[https://developer.android.com/studio] to get started. Android Studio is the app that's used to run the starter project on your computer or device.
+1. Clone, fork or download the project on your computer and install [Android Studio](https://developer.android.com/studio) to get started. Android Studio is the app that's used to run the starter project on your computer or device.
 
 2. Open the `lobe_android` folder in this repository from inside Android Studio. Gradle will automatically start downloading the SDK's as needed.
 
