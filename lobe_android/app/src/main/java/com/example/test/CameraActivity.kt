@@ -169,7 +169,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
                     Math.round(p0!!.height / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
 
                 val distance = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP, dp - 94f,
+                    TypedValue.COMPLEX_UNIT_DIP, dp - 88f,
                     resources.displayMetrics
                 )
                 if (expanded) {
@@ -184,12 +184,16 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
                     slideOutAnimation.start()
                 } else {
 
-                    val spring: SpringForce = SpringForce(0f)
-                        .setDampingRatio(0.9f)
+                    val distance = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 10f,
+                        resources.displayMetrics
+                    )
+                    val spring: SpringForce = SpringForce(distance)
+                        .setDampingRatio(0.8f)
                         .setStiffness(300f)
 
                     val slideInAnimation =
-                        SpringAnimation(p0, DynamicAnimation.TRANSLATION_Y, 0f).setSpring(spring)
+                        SpringAnimation(p0, DynamicAnimation.TRANSLATION_Y, distance).setSpring(spring)
                     slideInAnimation.start()
                 }
                 expanded = !expanded

@@ -16,6 +16,7 @@
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#00000000">
@@ -92,13 +93,13 @@
             android:listSelector="@android:color/transparent"
             android:overScrollMode="never"
             android:scrollbars="none"
-            android:paddingTop="12dp"
-            android:paddingBottom="16dp"
+            android:paddingTop="10dp"
+            android:translationY="10dp"
+            android:paddingBottom="20dp"
+            tools:context=".CameraActivity"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
