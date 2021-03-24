@@ -16,6 +16,8 @@ import android.media.ImageReader
 import android.os.*
 import android.util.DisplayMetrics
 import android.util.Size
+import android.view.MotionEvent
+import android.view.MotionEvent.*
 import android.view.Surface
 import android.view.View
 import android.view.animation.*
@@ -30,6 +32,7 @@ import org.tensorflow.lite.examples.detection.LegacyCameraConnectionFragment
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener,
@@ -64,6 +67,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     var adapter: PredictionAdapter? = null
     var galleryImageView: ImageView? = null
     var flipImageView: ImageView? = null
+    var closeImageView: ImageView? = null
 
     private val device: Classifier.Device = Classifier.Device.CPU
 
@@ -76,6 +80,10 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
 
     fun setMode(useimg: Boolean) {
         useImage = useimg
+
+        galleryImageView!!.visibility = if (useImage) View.INVISIBLE else View.VISIBLE
+        flipImageView!!.visibility = if (useImage) View.INVISIBLE else View.VISIBLE
+        closeImageView!!.visibility = if (useImage) View.VISIBLE else View.INVISIBLE
     }
 
     protected open fun getModel(): Classifier.Model? {
@@ -96,31 +104,68 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
 
         galleryImageView = findViewById(R.id.galleryImageView)
         flipImageView = findViewById(R.id.flipImageView)
+        closeImageView = findViewById(R.id.closeImageView)
 
-
-        galleryImageView!!.setOnClickListener(object: View.OnClickListener {
+        galleryImageView!!.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
                 showImageSelect()
             }
         })
 
-        flipImageView!!.setOnClickListener(object: View.OnClickListener {
+        flipImageView!!.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
                 changeCam()
             }
-
         })
+
+        closeImageView!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+                // dismiss
+
+                //Create amd send the ACTION_DOWN MotionEvent
+                var originalDownTime: Long = SystemClock.uptimeMillis()
+                var eventTime: Long = SystemClock.uptimeMillis() + 100
+                var x = 0f
+                var y = 0f
+                var metaState = 0
+                var motionEvent = MotionEvent.obtain(
+                    originalDownTime,
+                    eventTime,
+                    MotionEvent.ACTION_DOWN,
+                    x,
+                    y,
+                    metaState
+                )
+
+                var returnVal = imageView!!.dispatchTouchEvent(motionEvent)
+                LOGGER.d("rteurnVal1: " + returnVal)
+
+                //Create amd send the ACTION_DOWN MotionEvent
+                eventTime = SystemClock.uptimeMillis() + 100
+                motionEvent = MotionEvent.obtain(
+                    originalDownTime,
+                    eventTime,
+                    MotionEvent.ACTION_DOWN,
+                    x,
+                    y + 10f,
+                    metaState
+                )
+                returnVal = imageView!!.dispatchTouchEvent(motionEvent)
+                LOGGER.d("rteurnVal2: " + returnVal)
+            }
+        })
+
 
         listView = findViewById(R.id.list_view)
         adapter = PredictionAdapter(this)
         listView!!.adapter = adapter
-        listView!!.setOnItemClickListener(object : AdapterView.OnItemClickListener {
+        listView!!.onItemClickListener = object : AdapterView.OnItemClickListener {
             override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 adapter!!.toggleCountShown()
             }
 
-        })
-        var transition = listView!!.getLayoutTransition()
+        }
+        var transition = listView!!.layoutTransition
         transition.enableTransitionType(LayoutTransition.CHANGING)
 
         val displayMetrics = DisplayMetrics()
@@ -136,13 +181,12 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
 
         outer!!.setOnTouchListener(object : OnSwipeTouchListener(this) {
             override fun doubleTap() {
-                takeScreenshot();
+                takeScreenshot()
             }
         })
     }
 
-    private fun showImageSelect()
-    {
+    private fun showImageSelect() {
         val intent = Intent()
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
@@ -150,12 +194,12 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             Intent.createChooser(intent, "Select Picture"),
             GALLARY_REQUEST_CODE
         )
-        overridePendingTransition(R.anim.slide_animation, R.anim.slide_animation);
+        overridePendingTransition(R.anim.slide_animation, R.anim.slide_animation)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GALLARY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            useImage = true
+            setMode(true)
             val imageData = data.data
             var iStream: InputStream? = null
             try {
@@ -171,7 +215,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             imageView!!.setImageURI(imageData)
             imageView!!.animate().scaleX(1.toFloat()).alpha(1.toFloat())
                 .scaleY(1.toFloat()).alpha(1.toFloat()).x(0F).y(0F).setDuration(500).start()
-            imageView!!.setOnTouchListener(OnDragTouchListener(imageView, this));
+            imageView!!.setOnTouchListener(OnDragTouchListener(imageView, this))
         }
     }
 
@@ -201,8 +245,8 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         var ctn: View = findViewById(R.id.container)
         val oa1: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 1f, 0f)
         val oa2: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 0f, 1f)
-        oa1.setInterpolator(DecelerateInterpolator())
-        oa2.setInterpolator(AccelerateDecelerateInterpolator())
+        oa1.interpolator = DecelerateInterpolator()
+        oa2.interpolator = AccelerateDecelerateInterpolator()
         oa1.duration = 200
         oa2.duration = 200
         oa1.addListener(object : AnimatorListenerAdapter() {
@@ -304,7 +348,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onPreviewFrame(bytes: ByteArray?, camera: Camera?) {
         if (isProcessingFrame) {
-            System.out.println("Dropping frame!");
+            System.out.println("Dropping frame!")
             return
         }
         try {
@@ -422,7 +466,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         super.onResume()
         handlerThread = HandlerThread("inference")
         handlerThread!!.start()
-        handler = Handler(handlerThread!!.getLooper())
+        handler = Handler(handlerThread!!.looper)
     }
 
     @Synchronized

@@ -57,6 +57,19 @@
             android:src="@drawable/gallery"/>
 
         <ImageView
+            android:id="@+id/closeImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:padding="11dp"
+            android:visibility="invisible"
+            android:background="@drawable/circlebackground"
+            android:elevation="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/close"/>
+
+        <ImageView
             android:id="@+id/flipImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
