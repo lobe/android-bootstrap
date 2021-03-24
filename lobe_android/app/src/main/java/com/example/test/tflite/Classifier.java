@@ -87,6 +87,12 @@ public abstract class Classifier {
      */
     private final TensorProcessor probabilityProcessor;
     /**
+     * Labels corresponding to the output of the vision model.
+     */
+    private final List<String> labels;
+    private final int LEGACY_VERSION = -1;
+    private final ArrayList<Integer> SUPPORTED_VERSIONS = new ArrayList(Arrays.asList(LEGACY_VERSION, 1));
+    /**
      * An instance of the driver class to run model inference with Tensorflow Lite.
      */
     protected Interpreter tflite;
@@ -103,16 +109,9 @@ public abstract class Classifier {
      */
     private NnApiDelegate nnApiDelegate = null;
     /**
-     * Labels corresponding to the output of the vision model.
-     */
-    private final List<String> labels;
-
-    /**
      * Input image TensorBuffer.
      */
     private TensorImage inputImageBuffer;
-    private final Integer LEGACY_VERSION = -1;
-    private final ArrayList<Integer> SUPPORTED_VERSIONS = new ArrayList<Integer>(Arrays.asList(LEGACY_VERSION, 1));
 
     /**
      * Initializes a {@code Classifier}.
@@ -137,18 +136,23 @@ public abstract class Classifier {
         // Loads labels out from the signature file.
         String json = new String(FileUtil.loadByteFromFile(activity, getLabelPath()), StandardCharsets.UTF_8);
         JSONObject jsonObject = null;
+        labels = new ArrayList<String>();
         try {
             jsonObject = new JSONObject(json);
 
-            var version = jsonObject.getJSONString("export_model_version") || LEGACY_VERSION;
-            if (version == null || !SUPPORTED_VERSIONS.includes(this.version)) {
-                var versionMessage = "Lobe export model version $this.version not explicitly supported by this code. Supported versions are [$SUPPORTED_VERSIONS]. You can comment out this error to double check the model code will work, or please pull latest changes from https://github.com/lobe/web-bootstrap or file an issue for support.";
+            int version = LEGACY_VERSION;
+            try {
+                version = jsonObject.getInt("export_model_version");
+            } catch (JSONException e) {
+            }
+            LOGGER.d("Version: $version");
+            if (!SUPPORTED_VERSIONS.contains(version)) {
+                String versionMessage = "Lobe export model version $this.version not explicitly supported by this code. Supported versions are [$SUPPORTED_VERSIONS]. You can comment out this error to double check the model code will work, or please pull latest changes from https://github.com/lobe/web-bootstrap or file an issue for support.";
                 LOGGER.e(versionMessage);
                 throw new Error(versionMessage);
             }
 
             JSONArray jArr = jsonObject.getJSONObject("classes").getJSONArray("Label");
-            labels = new ArrayList<String>();
             try {
                 for (int i = 0, l = jArr.length(); i < l; i++) {
                     labels.add(jArr.getString(i));
