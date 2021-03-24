@@ -137,8 +137,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
                     metaState
                 )
 
-                var returnVal = imageView!!.dispatchTouchEvent(motionEvent)
-                LOGGER.d("rteurnVal1: " + returnVal)
+                imageView!!.dispatchTouchEvent(motionEvent)
 
                 //Create amd send the ACTION_DOWN MotionEvent
                 eventTime = SystemClock.uptimeMillis() + 100
@@ -150,8 +149,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
                     y + 10f,
                     metaState
                 )
-                returnVal = imageView!!.dispatchTouchEvent(motionEvent)
-                LOGGER.d("rteurnVal2: " + returnVal)
+                imageView!!.dispatchTouchEvent(motionEvent)
             }
         })
 
