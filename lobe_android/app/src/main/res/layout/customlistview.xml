@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="74dp"
         android:paddingLeft="16dp"
-        android:paddingTop="12dp"
+        android:paddingTop="8dp"
         android:paddingRight="16dp"
         android:paddingBottom="4dp"
         android:progress="80"
@@ -23,19 +22,15 @@
     <TextView
         android:id="@+id/customTextView"
         android:layout_width="0dp"
-        android:layout_height="74dp"
-        android:layout_marginLeft="16dp"
+        android:layout_height="72dp"
+        android:layout_marginLeft="32dp"
         android:elevation="1dp"
-        android:fontFamily="@font/labgrotesquebold"
         android:gravity="center_vertical|left"
-        android:paddingLeft="16dp"
-        android:paddingTop="12dp"
-        android:paddingRight="16dp"
-        android:paddingBottom="4dp"
         android:text="default"
         android:textColor="@android:color/white"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textFontWeight="500"
+        android:textSize="36sp"
+        app:layout_constraintEnd_toEndOf="@id/customProgressBar"
+        app:layout_constraintStart_toStartOf="@id/customProgressBar"
+        app:layout_constraintTop_toTopOf="@id/customProgressBar" />
 </androidx.constraintlayout.widget.ConstraintLayout>
