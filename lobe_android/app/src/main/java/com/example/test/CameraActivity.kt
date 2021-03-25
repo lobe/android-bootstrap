@@ -85,7 +85,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     fun setMode(useimg: Boolean) {
         useImage = useimg
 
-        galleryImageView!!.visibility = if (useImage) View.INVISIBLE else View.VISIBLE
         flipImageView!!.visibility = if (useImage) View.INVISIBLE else View.VISIBLE
         closeImageView!!.visibility = if (useImage) View.VISIBLE else View.INVISIBLE
     }

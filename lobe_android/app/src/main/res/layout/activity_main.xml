@@ -32,7 +32,6 @@
             android:layout_height="fill_parent"
             app:layout_anchorGravity="center"></FrameLayout>
 
-
         <ImageView
             android:id="@+id/myImageView"
             android:layout_width="match_parent"
@@ -57,19 +56,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/closeImageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="18dp"
-            android:background="@drawable/circlebackground"
-            android:elevation="1dp"
-            android:padding="11dp"
-            android:src="@drawable/close"
-            android:visibility="invisible"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
             android:id="@+id/flipImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -80,6 +66,19 @@
             android:src="@drawable/rotate"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/closeImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:background="@drawable/circlebackground"
+            android:elevation="1dp"
+            android:padding="11dp"
+            android:src="@drawable/close"
+            android:visibility="invisible"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"  />
 
         <ListView
             android:id="@+id/list_view"
