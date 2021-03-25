@@ -1,11 +1,13 @@
 package com.example.test
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Matrix
 import android.media.ImageReader
 import android.os.Build
 import android.os.SystemClock
 import android.util.Size
-import android.util.TypedValue
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.test.env.ImageUtils
@@ -14,13 +16,14 @@ import com.example.test.tflite.Classifier
 import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
+class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener {
 
     private val LOGGER: Logger = Logger()
     private val TF_OD_API_INPUT_SIZE = 448
 
     // Minimum detection confidence to track a detection.
     private val MAINTAIN_ASPECT = false
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private val DESIRED_PREVIEW_SIZE = Size(1280, 960)
     private val SAVE_PREVIEW_BITMAP = false
@@ -48,12 +51,7 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
             detector!!.close()
             detector = null
         }
-        if (device === Classifier.Device.GPU
-            && (model === Classifier.Model.QUANTIZED_MOBILENET || model === Classifier.Model.QUANTIZED_EFFICIENTNET)
-        ) {
-            LOGGER.d("Not creating classifier: GPU doesn't support quantized models.")
-            return
-        }
+
         try {
             LOGGER.d(
                 "Creating classifier (model=%s, device=%s, numThreads=%d)",
@@ -152,9 +150,15 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                 if (!useImage) {
                     val matrix = Matrix()
                     matrix.postRotate(90f)
-                    var targetWidth = previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+                    var targetWidth =
+                        previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
                     val scaledBitmap =
-                        Bitmap.createScaledBitmap(rgbFrameBitmap!!, targetWidth!!.toInt(), screenHeight!!, true)
+                        Bitmap.createScaledBitmap(
+                            rgbFrameBitmap!!,
+                            targetWidth!!.toInt(),
+                            screenHeight!!,
+                            true
+                        )
                     val rotatedBitmap = Bitmap.createBitmap(
                         scaledBitmap,
                         0,
@@ -165,8 +169,10 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                         true
                     )
 
-                    var w = screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
-                    rawBitmap = Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
+                    var w =
+                        screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
+                    rawBitmap =
+                        Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
                 } else {
                     rawBitmap = rgbFrameBitmap
                 }
@@ -177,9 +183,21 @@ class DetectorActivity: CameraActivity(), ImageReader.OnImageAvailableListener {
                 var curHeight = rawBitmap!!.height
                 var squareBitmap: Bitmap? = null
                 if (curHeight > curWidth) {
-                    squareBitmap = Bitmap.createBitmap(rawBitmap, 0, ((curHeight.toFloat() - curWidth.toFloat()) / 2.toFloat()).toInt(),  curWidth, curWidth)
+                    squareBitmap = Bitmap.createBitmap(
+                        rawBitmap,
+                        0,
+                        ((curHeight.toFloat() - curWidth.toFloat()) / 2.toFloat()).toInt(),
+                        curWidth,
+                        curWidth
+                    )
                 } else {
-                    squareBitmap = Bitmap.createBitmap(rawBitmap, ((curWidth.toFloat() - curHeight.toFloat()) / 2.toFloat()).toInt(), 0,  curHeight, curHeight)
+                    squareBitmap = Bitmap.createBitmap(
+                        rawBitmap,
+                        ((curWidth.toFloat() - curHeight.toFloat()) / 2.toFloat()).toInt(),
+                        0,
+                        curHeight,
+                        curHeight
+                    )
                 }
 
                 val canvas1 = Canvas(croppedBitmap!!)
