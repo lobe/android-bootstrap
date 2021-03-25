@@ -23,7 +23,6 @@
         android:layout_height="wrap_content" />
 
     <com.example.test.customview.OverlayView
-        android:id="@+id/tracking_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

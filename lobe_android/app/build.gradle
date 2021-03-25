@@ -29,7 +29,7 @@ android {
 }
 
 project.ext.ASSET_DIR = projectDir.toString() + '/src/main/assets'
-project.ext.TMP_DIR   = project.buildDir.toString() + '/downloads'
+project.ext.TMP_DIR = project.buildDir.toString() + '/downloads'
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
@@ -44,5 +44,5 @@ dependencies {
     implementation('org.tensorflow:tensorflow-lite:0.0.0-nightly') { changing = true }
     implementation('org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly') { changing = true }
     implementation('org.tensorflow:tensorflow-lite-support:0.0.0-nightly') { changing = true }
-
+    implementation 'androidx.dynamicanimation:dynamicanimation:1.0.0'
 }

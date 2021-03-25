@@ -15,72 +15,91 @@
 -->
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:background="#00000000">
-
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/relativeLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#00000000">
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        app:layout_anchorGravity="center">
-    </FrameLayout>
-
-    <ImageView
-        android:id="@+id/myImageView"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="TODO"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/ProgressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="620dp"
-        android:layout_marginBottom="40dp"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:indeterminate="false"
-        android:progress="80"
-        android:progressDrawable="@drawable/greenprogress"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/relativeLayout"
-        app:layout_constraintTop_toTopOf="@+id/relativeLayout" />
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            app:layout_anchorGravity="center"></FrameLayout>
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_height="50dp"
-        android:layout_width="match_parent"
-        android:layout_marginTop="620dp"
-        android:layout_marginBottom="40dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:elevation="1dp"
-        android:gravity="center|left"
-        android:text="default"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/relativeLayout"
-        app:layout_constraintTop_toTopOf="@+id/relativeLayout"
-        android:fontFamily="@font/labgrotesque"/>
+        <ImageView
+            android:id="@+id/myImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="TODO"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/galleryImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:background="@drawable/circlebackground"
+            android:elevation="1dp"
+            android:padding="11dp"
+            android:src="@drawable/ic_gallery"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/flipImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:background="@drawable/circlebackground"
+            android:elevation="1dp"
+            android:padding="11dp"
+            android:src="@drawable/ic_rotate"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/closeImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:background="@drawable/circlebackground"
+            android:elevation="1dp"
+            android:padding="11dp"
+            android:src="@drawable/ic_close"
+            android:visibility="invisible"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"  />
+
+        <ListView
+            android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:background="@drawable/roundedcorners"
+            android:cacheColorHint="@android:color/transparent"
+            android:choiceMode="none"
+            android:divider="@android:color/transparent"
+            android:listSelector="@android:color/transparent"
+            android:overScrollMode="never"
+            android:paddingTop="10dp"
+            android:paddingBottom="20dp"
+            android:scrollbars="none"
+            android:translationY="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:context=".CameraActivity" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
         android:id="@+id/allWhite"
@@ -92,29 +111,6 @@ android:background="#00000000">
         android:visibility="invisible"
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center" />
-
-<!--    button for debugging-->
-    <!--    <Button-->
-<!--        android:id="@+id/button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:onClick="onClickBtn"-->
-<!--        android:text="Button" />-->
-
-<!--    ImageView for debugging-->
-<!--    <ImageView-->
-<!--        android:id="@+id/debugbitmap"-->
-<!--        android:layout_width="101dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_marginTop="315dp"-->
-<!--        android:layout_marginEnd="132dp"-->
-<!--        android:layout_marginRight="132dp"-->
-<!--        android:layout_marginBottom="159dp"-->
-<!--        android:contentDescription="TODO"-->
-<!--        android:scaleType="centerCrop"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/textView"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

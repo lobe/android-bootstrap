@@ -3,21 +3,22 @@ package com.example.test
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Fragment
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.hardware.Camera
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.media.ImageReader
 import android.os.*
 import android.util.DisplayMetrics
 import android.util.Size
+import android.util.TypedValue
+import android.view.MotionEvent
+import android.view.MotionEvent.*
 import android.view.Surface
 import android.view.View
 import android.view.animation.*
@@ -25,6 +26,9 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
 import com.example.test.tflite.Classifier
@@ -61,10 +65,13 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     var useImage = false
     var useFront = false
     var imageView: ImageView? = null
-    var label: TextView? = null
-    var progressBar: ProgressBar? = null
     var outer: View? = null
     var inputData: ByteArray? = null
+    var listView: ListView? = null
+    var adapter: PredictionAdapter? = null
+    var galleryImageView: ImageView? = null
+    var flipImageView: ImageView? = null
+    var closeImageView: ImageView? = null
 
     private val device: Classifier.Device = Classifier.Device.CPU
 
@@ -77,6 +84,9 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
 
     fun setMode(useimg: Boolean) {
         useImage = useimg
+
+        flipImageView!!.visibility = if (useImage) View.INVISIBLE else View.VISIBLE
+        closeImageView!!.visibility = if (useImage) View.VISIBLE else View.INVISIBLE
     }
 
     protected open fun getModel(): Classifier.Model? {
@@ -93,9 +103,104 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         setContentView(R.layout.activity_main)
 
         imageView = findViewById(R.id.myImageView)
-        label = findViewById(R.id.textView)
-        progressBar = findViewById(R.id.ProgressBar)
         outer = findViewById(R.id.relativeLayout)
+
+        galleryImageView = findViewById(R.id.galleryImageView)
+        flipImageView = findViewById(R.id.flipImageView)
+        closeImageView = findViewById(R.id.closeImageView)
+
+        galleryImageView!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+                showImageSelect()
+            }
+        })
+
+        flipImageView!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+                changeCam()
+            }
+        })
+
+        closeImageView!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+                // dismiss
+
+                //Create amd send the ACTION_DOWN MotionEvent
+                var originalDownTime: Long = SystemClock.uptimeMillis()
+                var eventTime: Long = SystemClock.uptimeMillis() + 100
+                var x = 0f
+                var y = 0f
+                var metaState = 0
+                var motionEvent = MotionEvent.obtain(
+                    originalDownTime,
+                    eventTime,
+                    MotionEvent.ACTION_DOWN,
+                    x,
+                    y,
+                    metaState
+                )
+
+                imageView!!.dispatchTouchEvent(motionEvent)
+
+                //Create amd send the ACTION_DOWN MotionEvent
+                eventTime = SystemClock.uptimeMillis() + 100
+                motionEvent = MotionEvent.obtain(
+                    originalDownTime,
+                    eventTime,
+                    MotionEvent.ACTION_DOWN,
+                    x,
+                    y + 10f,
+                    metaState
+                )
+                imageView!!.dispatchTouchEvent(motionEvent)
+            }
+        })
+
+        listView = findViewById(R.id.list_view)
+        adapter = PredictionAdapter(this)
+        listView!!.adapter = adapter
+        var expanded = true
+        listView!!.onItemClickListener = object : AdapterView.OnItemClickListener {
+            override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+
+                val displayMetrics: DisplayMetrics = resources.displayMetrics
+                val dp =
+                    Math.round(p0!!.height / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
+
+                val distance = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, dp - 88f,
+                    resources.displayMetrics
+                )
+                if (expanded) {
+                    val spring: SpringForce = SpringForce(distance)
+                        .setDampingRatio(0.8f)
+                        .setStiffness(300f)
+
+                    val slideOutAnimation =
+                        SpringAnimation(p0, DynamicAnimation.TRANSLATION_Y, distance).setSpring(
+                            spring
+                        )
+                    slideOutAnimation.start()
+                } else {
+
+                    val distance = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 10f,
+                        resources.displayMetrics
+                    )
+                    val spring: SpringForce = SpringForce(distance)
+                        .setDampingRatio(0.8f)
+                        .setStiffness(300f)
+
+                    val slideInAnimation =
+                        SpringAnimation(p0, DynamicAnimation.TRANSLATION_Y, distance).setSpring(spring)
+                    slideInAnimation.start()
+                }
+                expanded = !expanded
+            }
+
+        }
+        var transition = listView!!.layoutTransition
+        transition.enableTransitionType(LayoutTransition.CHANGING)
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -109,31 +214,26 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         }
 
         outer!!.setOnTouchListener(object : OnSwipeTouchListener(this) {
-            override fun onSwipeTop() {
-                val intent = Intent()
-                intent.type = "image/*"
-                intent.action = Intent.ACTION_GET_CONTENT
-                startActivityForResult(
-                    Intent.createChooser(intent, "Select Picture"),
-                    GALLARY_REQUEST_CODE
-                )
-                overridePendingTransition(R.anim.slide_animation, R.anim.slide_animation);
-            }
-
             override fun doubleTap() {
-                changeCam()
-            }
-
-            override fun tripleTap() {
-                takeScreenshot();
+                takeScreenshot()
             }
         })
     }
 
+    private fun showImageSelect() {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(
+            Intent.createChooser(intent, "Select Picture"),
+            GALLARY_REQUEST_CODE
+        )
+        overridePendingTransition(R.anim.slide_animation, R.anim.slide_animation)
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GALLARY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            useImage = true
+            setMode(true)
             val imageData = data.data
             var iStream: InputStream? = null
             try {
@@ -149,7 +249,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             imageView!!.setImageURI(imageData)
             imageView!!.animate().scaleX(1.toFloat()).alpha(1.toFloat())
                 .scaleY(1.toFloat()).alpha(1.toFloat()).x(0F).y(0F).setDuration(500).start()
-            imageView!!.setOnTouchListener(OnDragTouchListener(imageView, this));
+            imageView!!.setOnTouchListener(OnDragTouchListener(imageView, this))
         }
     }
 
@@ -158,7 +258,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         val byteBuffer = ByteArrayOutputStream()
         val bufferSize = 1024
         val buffer = ByteArray(bufferSize)
-        var len = 0
+        var len: Int
         while (inputStream.read(buffer).also { len = it } != -1) {
             byteBuffer.write(buffer, 0, len)
         }
@@ -179,8 +279,8 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         var ctn: View = findViewById(R.id.container)
         val oa1: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 1f, 0f)
         val oa2: ObjectAnimator = ObjectAnimator.ofFloat(ctn, "scaleX", 0f, 1f)
-        oa1.setInterpolator(DecelerateInterpolator())
-        oa2.setInterpolator(AccelerateDecelerateInterpolator())
+        oa1.interpolator = DecelerateInterpolator()
+        oa2.interpolator = AccelerateDecelerateInterpolator()
         oa1.duration = 200
         oa2.duration = 200
         oa1.addListener(object : AnimatorListenerAdapter() {
@@ -200,11 +300,11 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             val matrix = Matrix()
             matrix.postRotate(90f)
             var targetWidth =
-                previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+                previewWidth.toFloat() / previewHeight.toFloat() * screenHeight!!.toFloat()
             val scaledBitmap =
                 Bitmap.createScaledBitmap(
                     rgbFrameBitmap!!,
-                    targetWidth!!.toInt(),
+                    targetWidth.toInt(),
                     screenHeight!!,
                     true
                 )
@@ -233,7 +333,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         animation.interpolator = LinearInterpolator()
         animation.repeatCount = 1 //repeating indefinitely
         animation.repeatMode = Animation.REVERSE //animation will start from end point once ended.
-        iv!!.startAnimation(animation)
+        iv.startAnimation(animation)
         iv.visibility = View.INVISIBLE
 
         val pattern = "yyyy-MM-dd-hh-mm-ss"
@@ -282,7 +382,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onPreviewFrame(bytes: ByteArray?, camera: Camera?) {
         if (isProcessingFrame) {
-            System.out.println("Dropping frame!");
+            System.out.println("Dropping frame!")
             return
         }
         try {
@@ -297,7 +397,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             }
         } catch (e: Exception) {
             throw java.lang.Exception(e)
-            return
         }
 
         isProcessingFrame = true
@@ -348,7 +447,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     protected open fun setFragment(useFront: Boolean) {
-        val cameraId: String? = chooseCamera()
         val fragment: Fragment
         fragment = LegacyCameraConnectionFragment(
             this,
@@ -359,31 +457,6 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
             screenWidth!!
         )
         fragmentManager.beginTransaction().replace(R.id.container, fragment).commit()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun chooseCamera(): String? {
-        val manager =
-            getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        try {
-            for (cameraId in manager.cameraIdList) {
-                val characteristics =
-                    manager.getCameraCharacteristics(cameraId)
-
-                // We don't use a front facing camera in this sample.
-                val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
-                    continue
-                }
-                val map =
-                    characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-                        ?: continue
-                return cameraId
-            }
-        } catch (e: java.lang.Exception) {
-            LOGGER.e(e, "Not allowed to access camera")
-        }
-        return null
     }
 
     protected open fun getScreenOrientation(): Int {
@@ -427,7 +500,7 @@ abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener
         super.onResume()
         handlerThread = HandlerThread("inference")
         handlerThread!!.start()
-        handler = Handler(handlerThread!!.getLooper())
+        handler = Handler(handlerThread!!.looper)
     }
 
     @Synchronized

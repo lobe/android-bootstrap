@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="74dp">
+
+    <ProgressBar
+        android:id="@+id/customProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:paddingLeft="16dp"
+        android:paddingTop="6dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="6dp"
+        android:progress="80"
+        android:progressDrawable="@drawable/clearprogress"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/customTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="32dp"
+        android:animateLayoutChanges="true"
+        android:elevation="1dp"
+        android:gravity="center_vertical|left"
+        android:paddingBottom="2dp"
+        android:text="default"
+        android:textColor="@android:color/white"
+        android:textFontWeight="500"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
