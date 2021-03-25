@@ -35,7 +35,8 @@ import java.util.*
 
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListener, Camera.PreviewCallback, CompoundButton.OnCheckedChangeListener, View.OnClickListener{
+abstract class CameraActivity : Activity(), ImageReader.OnImageAvailableListener,
+    Camera.PreviewCallback, CompoundButton.OnCheckedChangeListener, View.OnClickListener {
     private val debug = false
 
     private val LOGGER: Logger = Logger()
@@ -68,13 +69,13 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
     private val device: Classifier.Device = Classifier.Device.CPU
 
     val nThreads: Int = 4
-    private val model: Classifier.Model = Classifier.Model.FLOAT_MOBILENET
+    private val model: Classifier.Model = Classifier.Model.IMAGE_CLASSIFIER
 
     fun getNumThreads(): Int {
         return nThreads
     }
 
-    fun setMode(useimg: Boolean){
+    fun setMode(useimg: Boolean) {
         useImage = useimg
     }
 
@@ -198,9 +199,15 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         if (!useImage) {
             val matrix = Matrix()
             matrix.postRotate(90f)
-            var targetWidth = previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
+            var targetWidth =
+                previewWidth!!.toFloat() / previewHeight!!.toFloat() * screenHeight!!.toFloat()
             val scaledBitmap =
-                Bitmap.createScaledBitmap(rgbFrameBitmap!!, targetWidth!!.toInt(), screenHeight!!, true)
+                Bitmap.createScaledBitmap(
+                    rgbFrameBitmap!!,
+                    targetWidth!!.toInt(),
+                    screenHeight!!,
+                    true
+                )
             val rotatedBitmap = Bitmap.createBitmap(
                 scaledBitmap,
                 0,
@@ -211,13 +218,17 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
                 true
             )
             var w = screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
-            var resizedbitmap1 = Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
+            var resizedbitmap1 =
+                Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
             imageView!!.setImageBitmap(resizedbitmap1)
         }
 
         var iv: ImageView = findViewById(R.id.allWhite)
         iv.visibility = View.VISIBLE
-        val animation: Animation = AlphaAnimation(0.toFloat(), 1.toFloat()) //to change visibility from visible to invisible
+        val animation: Animation = AlphaAnimation(
+            0.toFloat(),
+            1.toFloat()
+        ) //to change visibility from visible to invisible
         animation.duration = 100 //1 second duration for each animation cycle
         animation.interpolator = LinearInterpolator()
         animation.repeatCount = 1 //repeating indefinitely
@@ -229,7 +240,8 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
         val simpleDateFormat = SimpleDateFormat(pattern)
         val date: String = simpleDateFormat.format(Date())
         try {
-            val storageLoc = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            val storageLoc =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
 
             // create bitmap screen capture
             val v1 = outer!!
@@ -237,7 +249,11 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
             val bitmap = Bitmap.createBitmap(v1.drawingCache)
             v1.isDrawingCacheEnabled = false
 
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 // Do the file write
                 val imageFile = File(storageLoc, date + ".jpg")
                 val outputStream = FileOutputStream(imageFile)
@@ -247,16 +263,18 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
                 outputStream.close()
             } else {
                 // Request permission from the user
-                ActivityCompat.requestPermissions(this,
+                ActivityCompat.requestPermissions(
+                    this,
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    0)
+                    0
+                )
             }
         } catch (e: Throwable) {
             // Several error may come out with file handling or DOM
             e.printStackTrace()
         }
 
-        if (!useImage){
+        if (!useImage) {
             imageView!!.setImageBitmap(null)
         }
     }
@@ -394,7 +412,7 @@ abstract class CameraActivity :  Activity(), ImageReader.OnImageAvailableListene
 
     @Synchronized
     fun runInBackground(r: Runnable) {
-    handler?.post(r)
+        handler?.post(r)
     }
 
     @Synchronized

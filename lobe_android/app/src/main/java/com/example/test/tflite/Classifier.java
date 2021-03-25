@@ -25,21 +25,14 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.SystemClock;
 import android.os.Trace;
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
+
+import com.example.test.env.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
-import com.example.test.env.Logger;
-import com.example.test.tflite.Classifier.Device;
 import org.tensorflow.lite.gpu.GpuDelegate;
 import org.tensorflow.lite.nnapi.NnApiDelegate;
 import org.tensorflow.lite.support.common.FileUtil;
@@ -54,336 +47,392 @@ import org.tensorflow.lite.support.image.ops.Rot90Op;
 import org.tensorflow.lite.support.label.TensorLabel;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
-/** A classifier specialized to label images using TensorFlow Lite. */
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+
+/**
+ * A classifier specialized to label images using TensorFlow Lite.
+ */
 public abstract class Classifier {
-  private static final Logger LOGGER = new Logger();
-
-  /** The model type used for classification. */
-  public enum Model {
-    FLOAT_MOBILENET,
-    QUANTIZED_MOBILENET,
-    FLOAT_EFFICIENTNET,
-    QUANTIZED_EFFICIENTNET
-  }
-
-  /** The runtime device type used for executing classification. */
-  public enum Device {
-    CPU,
-    NNAPI,
-    GPU
-  }
-
-  /** Number of results to show in the UI. */
-  private static final int MAX_RESULTS = 3;
-
-  /** The loaded TensorFlow Lite model. */
-  private MappedByteBuffer tfliteModel;
-
-  /** Image size along the x axis. */
-  private final int imageSizeX;
-
-  /** Image size along the y axis. */
-  private final int imageSizeY;
-
-  /** Optional GPU delegate for accleration. */
-  private GpuDelegate gpuDelegate = null;
-
-  /** Optional NNAPI delegate for accleration. */
-  private NnApiDelegate nnApiDelegate = null;
-
-  /** An instance of the driver class to run model inference with Tensorflow Lite. */
-  protected Interpreter tflite;
-
-  /** Options for configuring the Interpreter. */
-  private final Interpreter.Options tfliteOptions = new Interpreter.Options();
-
-  /** Labels corresponding to the output of the vision model. */
-  private List<String> labels;
-
-  /** Input image TensorBuffer. */
-  private TensorImage inputImageBuffer;
-
-  /** Output probability TensorBuffer. */
-  private final TensorBuffer outputProbabilityBuffer;
-
-  /** Processer to apply post processing of the output probability. */
-  private final TensorProcessor probabilityProcessor;
-
-  /**
-   * Creates a classifier with the provided configuration
-   *
-   * Perhaps in the future we can remove other model types from this example app
-   *
-   * @param activity The current Activity.
-   * @param model The model to use for classification.
-   * @param device The device to use for classification.
-   * @param numThreads The number of threads to use for classification.
-   * @return A classifier with the desired configuration.
-   */
-  public static Classifier create(Activity activity, Model model, Device device, int numThreads)
-      throws IOException {
-    if (model == Model.QUANTIZED_MOBILENET) {
-      return new org.tensorflow.lite.examples.classification.tflite.ClassifierQuantizedMobileNet(activity, device, numThreads);
-    } else if (model == Model.FLOAT_MOBILENET) {
-      return new ClassifierFloatMobileNet(activity, device, numThreads);
-    } else if (model == Model.FLOAT_EFFICIENTNET) {
-      return new ClassifierFloatEfficientNet(activity, device, numThreads);
-    } else if (model == Model.QUANTIZED_EFFICIENTNET) {
-      return new ClassifierQuantizedEfficientNet(activity, device, numThreads);
-    } else {
-      throw new UnsupportedOperationException();
-    }
-  }
-
-  /** An immutable result returned by a Classifier describing what was recognized. */
-  public static class Recognition {
-    /**
-     * A unique identifier for what has been recognized. Specific to the class, not the instance of
-     * the object.
-     */
-    private final String id;
-
-    /** Display name for the recognition. */
-    private final String title;
+    private static final Logger LOGGER = new Logger();
 
     /**
-     * A sortable score for how good the recognition is relative to others. Higher should be better.
+     * The model type used for classification.
      */
-    private final Float confidence;
-
-    /** Optional location within the source image for the location of the recognized object. */
-    private RectF location;
-
-    public Recognition(
-            final String id, final String title, final Float confidence, final RectF location
-    ) {
-      this.id = id;
-      this.title = title;
-      this.confidence = confidence;
-      this.location = location;
+    public enum Model {
+        IMAGE_CLASSIFIER,
     }
 
-    public String getId() {
-      return id;
+    /**
+     * The runtime device type used for executing classification.
+     */
+    public enum Device {
+        CPU,
+        NNAPI,
+        GPU
     }
 
-    public String getTitle() {
-      return title;
-    }
+    /**
+     * Number of results to show in the UI.
+     */
+    private static final int MAX_RESULTS = 3;
 
-    public Float getConfidence() {
-      return confidence;
-    }
+    /**
+     * The loaded TensorFlow Lite model.
+     */
+    private MappedByteBuffer tfliteModel;
 
-    public RectF getLocation() {
-      return new RectF(location);
-    }
+    /**
+     * Image size along the x axis.
+     */
+    private final int imageSizeX;
 
-    public void setLocation(RectF location) {
-      this.location = location;
-    }
+    /**
+     * Image size along the y axis.
+     */
+    private final int imageSizeY;
 
-    @Override
-    public String toString() {
-      String resultString = "";
-      if (id != null) {
-        resultString += "[" + id + "] ";
-      }
+    /**
+     * Optional GPU delegate for accleration.
+     */
+    private GpuDelegate gpuDelegate = null;
 
-      if (title != null) {
-        resultString += title + " ";
-      }
+    /**
+     * Optional NNAPI delegate for accleration.
+     */
+    private NnApiDelegate nnApiDelegate = null;
 
-      if (confidence != null) {
-        resultString += String.format("(%.1f%%) ", confidence * 100.0f);
-      }
+    /**
+     * An instance of the driver class to run model inference with Tensorflow Lite.
+     */
+    protected Interpreter tflite;
 
-      if (location != null) {
-        resultString += location + " ";
-      }
+    /**
+     * Options for configuring the Interpreter.
+     */
+    private final Interpreter.Options tfliteOptions = new Interpreter.Options();
 
-      return resultString.trim();
-    }
-  }
+    /**
+     * Labels corresponding to the output of the vision model.
+     */
+    private List<String> labels;
 
-  /** Initializes a {@code Classifier}. */
-  protected Classifier(Activity activity, Device device, int numThreads) throws IOException {
-    tfliteModel = FileUtil.loadMappedFile(activity, getModelPath());
-    switch (device) {
-      case NNAPI:
-        nnApiDelegate = new NnApiDelegate();
-        tfliteOptions.addDelegate(nnApiDelegate);
-        break;
-      case GPU:
-        gpuDelegate = new GpuDelegate();
-        tfliteOptions.addDelegate(gpuDelegate);
-        break;
-      case CPU:
-        break;
-    }
-    tfliteOptions.setNumThreads(numThreads);
-    tflite = new Interpreter(tfliteModel, tfliteOptions);
+    /**
+     * Input image TensorBuffer.
+     */
+    private TensorImage inputImageBuffer;
 
-    // Loads labels out from the signature file.
-    String json = new String(FileUtil.loadByteFromFile(activity, getLabelPath()), "UTF-8");
-    JSONObject jsonObject = null;
-    try {
-      jsonObject = new JSONObject(json);
-      JSONArray jArr = jsonObject.getJSONObject("classes").getJSONArray("Label");
-      labels = new ArrayList<String>();
-      try {
-        for (int i=0, l=jArr.length(); i<l; i++){
-          labels.add(jArr.getString(i));
+    /**
+     * Output probability TensorBuffer.
+     */
+    private final TensorBuffer outputProbabilityBuffer;
+
+    /**
+     * Processer to apply post processing of the output probability.
+     */
+    private final TensorProcessor probabilityProcessor;
+
+    /**
+     * Creates a classifier with the provided configuration
+     * <p>
+     * Perhaps in the future we can remove other model types from this example app
+     *
+     * @param activity   The current Activity.
+     * @param model      The model to use for classification.
+     * @param device     The device to use for classification.
+     * @param numThreads The number of threads to use for classification.
+     * @return A classifier with the desired configuration.
+     */
+    public static Classifier create(Activity activity, Model model, Device device, int numThreads)
+            throws IOException {
+        if (model == Model.IMAGE_CLASSIFIER) {
+            return new ImageClassifier(activity, device, numThreads);
+        } else {
+            throw new UnsupportedOperationException();
         }
-      } catch (JSONException e) {}
-    } catch (JSONException e) {
-      e.printStackTrace();
     }
 
+    /**
+     * An immutable result returned by a Classifier describing what was recognized.
+     */
+    public static class Recognition {
+        /**
+         * A unique identifier for what has been recognized. Specific to the class, not the instance of
+         * the object.
+         */
+        private final String id;
 
-    // Reads type and shape of input and output tensors, respectively.
-    int imageTensorIndex = 0;
-    int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
-    imageSizeY = imageShape[1];
-    imageSizeX = imageShape[2];
-    DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
-    // First output is the predicted label
-    // Second output is the array of confidences.
-    int probabilityTensorIndex = 0;
-    int[] probabilityShape =
-        tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
-    DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
+        /**
+         * Display name for the recognition.
+         */
+        private final String title;
 
-    // Creates the input tensor.
-    inputImageBuffer = new TensorImage(imageDataType);
+        /**
+         * A sortable score for how good the recognition is relative to others. Higher should be better.
+         */
+        private final Float confidence;
 
-    // Creates the output tensor and its processor.
-    outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
+        /**
+         * Optional location within the source image for the location of the recognized object.
+         */
+        private RectF location;
 
-    // Creates the post processor for the output probability.
-    probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
+        public Recognition(
+                final String id, final String title, final Float confidence, final RectF location
+        ) {
+            this.id = id;
+            this.title = title;
+            this.confidence = confidence;
+            this.location = location;
+        }
 
-    LOGGER.d("Created a Tensorflow Lite Image Classifier.");
-  }
+        public String getId() {
+            return id;
+        }
 
-  /** Runs inference and returns the classification results. */
-  public List<Recognition> recognizeImage(final Bitmap bitmap, int sensorOrientation) {
-    // Logs this method so that it can be analyzed with systrace.
-    Trace.beginSection("recognizeImage");
+        public String getTitle() {
+            return title;
+        }
 
-    Trace.beginSection("loadImage");
-    long startTimeForLoadImage = SystemClock.uptimeMillis();
-    inputImageBuffer = loadImage(bitmap, sensorOrientation);
-    long endTimeForLoadImage = SystemClock.uptimeMillis();
-    Trace.endSection();
-    LOGGER.v("Timecost to load the image: " + (endTimeForLoadImage - startTimeForLoadImage));
+        public Float getConfidence() {
+            return confidence;
+        }
 
-    // Runs the inference call.
-    Trace.beginSection("runInference");
-    long startTimeForReference = SystemClock.uptimeMillis();
-    tflite.run(inputImageBuffer.getBuffer(), outputProbabilityBuffer.getBuffer().rewind());
-    long endTimeForReference = SystemClock.uptimeMillis();
-    Trace.endSection();
-    LOGGER.v("Timecost to run model inference: " + (endTimeForReference - startTimeForReference));
+        public RectF getLocation() {
+            return new RectF(location);
+        }
 
-    // Gets the map of label and probability.
-    Map<String, Float> labeledProbability =
-        new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
-            .getMapWithFloatValue();
-    Trace.endSection();
+        public void setLocation(RectF location) {
+            this.location = location;
+        }
 
-    // Gets top-k results.
-    return getTopKProbability(labeledProbability);
-  }
+        @Override
+        public String toString() {
+            String resultString = "";
+            if (id != null) {
+                resultString += "[" + id + "] ";
+            }
 
-  /** Closes the interpreter and model to release resources. */
-  public void close() {
-    if (tflite != null) {
-      tflite.close();
-      tflite = null;
-    }
-    if (gpuDelegate != null) {
-      gpuDelegate.close();
-      gpuDelegate = null;
-    }
-    if (nnApiDelegate != null) {
-      nnApiDelegate.close();
-      nnApiDelegate = null;
-    }
-    tfliteModel = null;
-  }
+            if (title != null) {
+                resultString += title + " ";
+            }
 
-  /** Get the image size along the x axis. */
-  public int getImageSizeX() {
-    return imageSizeX;
-  }
+            if (confidence != null) {
+                resultString += String.format("(%.1f%%) ", confidence * 100.0f);
+            }
 
-  /** Get the image size along the y axis. */
-  public int getImageSizeY() {
-    return imageSizeY;
-  }
+            if (location != null) {
+                resultString += location + " ";
+            }
 
-  /** Loads input image, and applies preprocessing. */
-  private TensorImage loadImage(final Bitmap bitmap, int sensorOrientation) {
-    // Loads bitmap into a TensorImage.
-    inputImageBuffer.load(bitmap);
-
-    // Creates processor for the TensorImage.
-    int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
-    int numRotation = sensorOrientation / 90;
-    // TODO(b/143564309): Fuse ops inside ImageProcessor.
-    ImageProcessor imageProcessor =
-        new ImageProcessor.Builder()
-            .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
-            .add(new ResizeOp(imageSizeX, imageSizeY, ResizeMethod.NEAREST_NEIGHBOR))
-            .add(new Rot90Op(numRotation))
-            .add(getPreprocessNormalizeOp())
-            .build();
-    return imageProcessor.process(inputImageBuffer);
-  }
-
-  /** Gets the top-k results. */
-  private static List<Recognition> getTopKProbability(Map<String, Float> labelProb) {
-    // Find the best classifications.
-    PriorityQueue<Recognition> pq =
-        new PriorityQueue<>(
-            MAX_RESULTS,
-            new Comparator<Recognition>() {
-              @Override
-              public int compare(Recognition lhs, Recognition rhs) {
-                // Intentionally reversed to put high confidence at the head of the queue.
-                return Float.compare(rhs.getConfidence(), lhs.getConfidence());
-              }
-            });
-
-    for (Map.Entry<String, Float> entry : labelProb.entrySet()) {
-      pq.add(new Recognition("" + entry.getKey(), entry.getKey(), entry.getValue(), null));
+            return resultString.trim();
+        }
     }
 
-    final ArrayList<Recognition> recognitions = new ArrayList<>();
-    int recognitionsSize = Math.min(pq.size(), MAX_RESULTS);
-    for (int i = 0; i < recognitionsSize; ++i) {
-      recognitions.add(pq.poll());
+    /**
+     * Initializes a {@code Classifier}.
+     */
+    protected Classifier(Activity activity, Device device, int numThreads) throws IOException {
+        tfliteModel = FileUtil.loadMappedFile(activity, getModelPath());
+        switch (device) {
+            case NNAPI:
+                nnApiDelegate = new NnApiDelegate();
+                tfliteOptions.addDelegate(nnApiDelegate);
+                break;
+            case GPU:
+                gpuDelegate = new GpuDelegate();
+                tfliteOptions.addDelegate(gpuDelegate);
+                break;
+            case CPU:
+                break;
+        }
+        tfliteOptions.setNumThreads(numThreads);
+        tflite = new Interpreter(tfliteModel, tfliteOptions);
+
+        // Loads labels out from the signature file.
+        String json = new String(FileUtil.loadByteFromFile(activity, getLabelPath()), "UTF-8");
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(json);
+            JSONArray jArr = jsonObject.getJSONObject("classes").getJSONArray("Label");
+            labels = new ArrayList<String>();
+            try {
+                for (int i = 0, l = jArr.length(); i < l; i++) {
+                    labels.add(jArr.getString(i));
+                }
+            } catch (JSONException e) {
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        // Reads type and shape of input and output tensors, respectively.
+        int imageTensorIndex = 0;
+        int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
+        imageSizeY = imageShape[1];
+        imageSizeX = imageShape[2];
+        DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
+        // First output is the predicted label
+        // Second output is the array of confidences.
+        int probabilityTensorIndex = 0;
+        int[] probabilityShape =
+                tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
+        DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
+
+        // Creates the input tensor.
+        inputImageBuffer = new TensorImage(imageDataType);
+
+        // Creates the output tensor and its processor.
+        outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
+
+        // Creates the post processor for the output probability.
+        probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
+
+        LOGGER.d("Created a Tensorflow Lite Image Classifier.");
     }
-    return recognitions;
-  }
 
-  /** Gets the name of the model file stored in Assets. */
-  protected abstract String getModelPath();
+    /**
+     * Runs inference and returns the classification results.
+     */
+    public List<Recognition> recognizeImage(final Bitmap bitmap, int sensorOrientation) {
+        // Logs this method so that it can be analyzed with systrace.
+        Trace.beginSection("recognizeImage");
 
-  /** Gets the name of the label file stored in Assets. */
-  protected abstract String getLabelPath();
+        Trace.beginSection("loadImage");
+        long startTimeForLoadImage = SystemClock.uptimeMillis();
+        inputImageBuffer = loadImage(bitmap, sensorOrientation);
+        long endTimeForLoadImage = SystemClock.uptimeMillis();
+        Trace.endSection();
+        LOGGER.v("Timecost to load the image: " + (endTimeForLoadImage - startTimeForLoadImage));
 
-  /** Gets the TensorOperator to nomalize the input image in preprocessing. */
-  protected abstract TensorOperator getPreprocessNormalizeOp();
+        // Runs the inference call.
+        Trace.beginSection("runInference");
+        long startTimeForReference = SystemClock.uptimeMillis();
+        tflite.run(inputImageBuffer.getBuffer(), outputProbabilityBuffer.getBuffer().rewind());
+        long endTimeForReference = SystemClock.uptimeMillis();
+        Trace.endSection();
+        LOGGER.v("Timecost to run model inference: " + (endTimeForReference - startTimeForReference));
 
-  /**
-   * Gets the TensorOperator to dequantize the output probability in post processing.
-   *
-   * <p>For quantized model, we need de-quantize the prediction with NormalizeOp (as they are all
-   * essentially linear transformation). For float model, de-quantize is not required. But to
-   * uniform the API, de-quantize is added to float model too. Mean and std are set to 0.0f and
-   * 1.0f, respectively.
-   */
-  protected abstract TensorOperator getPostprocessNormalizeOp();
+        // Gets the map of label and probability.
+        Map<String, Float> labeledProbability =
+                new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
+                        .getMapWithFloatValue();
+        Trace.endSection();
+
+        // Gets top-k results.
+        return getTopKProbability(labeledProbability);
+    }
+
+    /**
+     * Closes the interpreter and model to release resources.
+     */
+    public void close() {
+        if (tflite != null) {
+            tflite.close();
+            tflite = null;
+        }
+        if (gpuDelegate != null) {
+            gpuDelegate.close();
+            gpuDelegate = null;
+        }
+        if (nnApiDelegate != null) {
+            nnApiDelegate.close();
+            nnApiDelegate = null;
+        }
+        tfliteModel = null;
+    }
+
+    /**
+     * Get the image size along the x axis.
+     */
+    public int getImageSizeX() {
+        return imageSizeX;
+    }
+
+    /**
+     * Get the image size along the y axis.
+     */
+    public int getImageSizeY() {
+        return imageSizeY;
+    }
+
+    /**
+     * Loads input image, and applies preprocessing.
+     */
+    private TensorImage loadImage(final Bitmap bitmap, int sensorOrientation) {
+        // Loads bitmap into a TensorImage.
+        inputImageBuffer.load(bitmap);
+
+        // Creates processor for the TensorImage.
+        int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
+        int numRotation = sensorOrientation / 90;
+        // TODO(b/143564309): Fuse ops inside ImageProcessor.
+        ImageProcessor imageProcessor =
+                new ImageProcessor.Builder()
+                        .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
+                        .add(new ResizeOp(imageSizeX, imageSizeY, ResizeMethod.NEAREST_NEIGHBOR))
+                        .add(new Rot90Op(numRotation))
+                        .add(getPreprocessNormalizeOp())
+                        .build();
+        return imageProcessor.process(inputImageBuffer);
+    }
+
+    /**
+     * Gets the top-k results.
+     */
+    private static List<Recognition> getTopKProbability(Map<String, Float> labelProb) {
+        // Find the best classifications.
+        PriorityQueue<Recognition> pq =
+                new PriorityQueue<>(
+                        MAX_RESULTS,
+                        new Comparator<Recognition>() {
+                            @Override
+                            public int compare(Recognition lhs, Recognition rhs) {
+                                // Intentionally reversed to put high confidence at the head of the queue.
+                                return Float.compare(rhs.getConfidence(), lhs.getConfidence());
+                            }
+                        });
+
+        for (Map.Entry<String, Float> entry : labelProb.entrySet()) {
+            pq.add(new Recognition("" + entry.getKey(), entry.getKey(), entry.getValue(), null));
+        }
+
+        final ArrayList<Recognition> recognitions = new ArrayList<>();
+        int recognitionsSize = Math.min(pq.size(), MAX_RESULTS);
+        for (int i = 0; i < recognitionsSize; ++i) {
+            recognitions.add(pq.poll());
+        }
+        return recognitions;
+    }
+
+    /**
+     * Gets the name of the model file stored in Assets.
+     */
+    protected abstract String getModelPath();
+
+    /**
+     * Gets the name of the label file stored in Assets.
+     */
+    protected abstract String getLabelPath();
+
+    /**
+     * Gets the TensorOperator to nomalize the input image in preprocessing.
+     */
+    protected abstract TensorOperator getPreprocessNormalizeOp();
+
+    /**
+     * Gets the TensorOperator to dequantize the output probability in post processing.
+     *
+     * <p>For quantized model, we need de-quantize the prediction with NormalizeOp (as they are all
+     * essentially linear transformation). For float model, de-quantize is not required. But to
+     * uniform the API, de-quantize is added to float model too. Mean and std are set to 0.0f and
+     * 1.0f, respectively.
+     */
+    protected abstract TensorOperator getPostprocessNormalizeOp();
 }
