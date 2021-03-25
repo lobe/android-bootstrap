@@ -92,14 +92,14 @@
             android:divider="@android:color/transparent"
             android:listSelector="@android:color/transparent"
             android:overScrollMode="never"
-            android:scrollbars="none"
             android:paddingTop="10dp"
-            android:translationY="10dp"
             android:paddingBottom="20dp"
-            tools:context=".CameraActivity"
+            android:scrollbars="none"
+            android:translationY="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:context=".CameraActivity" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
