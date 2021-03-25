@@ -13,6 +13,7 @@ import com.example.test.env.ImageUtils
 import com.example.test.env.Logger
 import com.example.test.tflite.Classifier
 import java.io.IOException
+import kotlin.math.min
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener {
@@ -168,7 +169,10 @@ class DetectorActivity : CameraActivity(), ImageReader.OnImageAvailableListener 
                     )
 
                     var w =
-                        screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height
+                        min(
+                            screenWidth!!.toFloat() / screenHeight!!.toFloat() * rotatedBitmap.height,
+                            rotatedBitmap.width.toFloat()
+                        )
                     rawBitmap =
                         Bitmap.createBitmap(rotatedBitmap, 0, 0, w.toInt(), rotatedBitmap.height)
                 } else {
