@@ -21,6 +21,6 @@ We recommend Android Studio 4.1 or higher. This version of Android Studio will m
 
 ## Contributing
 
-GitHub Issues are for reporting bugs, discussing features and general feedback on the iOS starter project. Be sure to check our documentation, FAQ and past issues before opening any new ones.
+GitHub Issues are for reporting bugs, discussing features and general feedback on the Android starter project. Be sure to check our documentation, FAQ and past issues before opening any new ones.
 
 To share your project, get feedback on it, and learn more about Lobe, please visit our community on [Reddit](https://www.reddit.com/r/Lobe/). We look forward to seeing the amazing projects that can be built, when machine learning is made accessible to you.
