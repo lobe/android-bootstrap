@@ -136,8 +136,8 @@ public abstract class Classifier {
 
         // Defaults
         labels = new ArrayList<String>();
-        int tempImageSizeY = 0;
-        int tempImageSizeX = 0;
+        int tempImageSizeY = 224;
+        int tempImageSizeX = 224;
         DataType imageDataType = DataType.FLOAT32;
         DataType probabilityDataType = DataType.FLOAT32;
         int[] probabilityShape = new int[0];
