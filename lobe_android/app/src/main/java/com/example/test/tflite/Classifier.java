@@ -133,12 +133,21 @@ public abstract class Classifier {
         tfliteOptions.setNumThreads(numThreads);
         tflite = new Interpreter(tfliteModel, tfliteOptions);
 
-        // Loads labels out from the signature file.
-        String json = new String(FileUtil.loadByteFromFile(activity, getLabelPath()), StandardCharsets.UTF_8);
-        JSONObject jsonObject = null;
+
+        // Defaults
         labels = new ArrayList<String>();
+        int tempImageSizeY = 224;
+        int tempImageSizeX = 224;
+        DataType imageDataType = DataType.FLOAT32;
+        DataType probabilityDataType = DataType.FLOAT32;
+        int[] probabilityShape = new int[0];
+
+        // Load signature file to obtain labels, input, and output formats of the model.
+        // Using this instead of tflite.get* methods as order of operations and fields are not guaranteed.
         try {
-            jsonObject = new JSONObject(json);
+            // Loads labels out from the signature file.
+            String json = new String(FileUtil.loadByteFromFile(activity, getLabelPath()), StandardCharsets.UTF_8);
+            JSONObject jsonObject = new JSONObject(json);
 
             int version = LEGACY_VERSION;
             try {
@@ -159,28 +168,38 @@ public abstract class Classifier {
                 }
             } catch (JSONException e) {
             }
+
+            // Reads type and shape of input and output tensors, respectively.
+            JSONObject inputImage = jsonObject.getJSONObject("inputs").getJSONObject("Image");
+            JSONArray shapeArray = inputImage.getJSONArray("shape"); // {1, height, width, 3}
+            String typeValue = inputImage.getString("dtype").toUpperCase();
+            tempImageSizeY = shapeArray.getInt(1);
+            tempImageSizeX = shapeArray.getInt(2);
+            imageDataType = DataType.valueOf(typeValue);
+
+            JSONObject outputConfidences = jsonObject.getJSONObject("outputs").getJSONObject("Confidences");
+            JSONArray outputShapeArray = outputConfidences.getJSONArray("shape"); // {1, NUM_CLASSES}
+            String outputTypeValue = outputConfidences.getString("dtype").toUpperCase();
+            probabilityShape = new int[outputShapeArray.length()];
+            for (int i = 0, l = outputShapeArray.length(); i < l; i++) {
+                try {
+                    probabilityShape[i] = outputShapeArray.getInt(i);
+                } catch (JSONException e) {
+                    probabilityShape[i] = 1; // default
+                }
+            }
+            probabilityDataType = DataType.valueOf(outputTypeValue);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-
-        // Reads type and shape of input and output tensors, respectively.
-        int imageTensorIndex = 0;
-        int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
-        imageSizeY = imageShape[1];
-        imageSizeX = imageShape[2];
-        DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
-        // First output is the predicted label
-        // Second output is the array of confidences.
-        int probabilityTensorIndex = 0;
-        int[] probabilityShape =
-                tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
-        DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
+        imageSizeY = tempImageSizeY;
+        imageSizeX = tempImageSizeX;
 
         // Creates the input tensor.
         inputImageBuffer = new TensorImage(imageDataType);
 
-        // Creates the output tensor and its processor.
+        // Create the output tensor.
         outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
 
         // Creates the post processor for the output probability.
