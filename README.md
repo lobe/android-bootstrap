@@ -11,7 +11,7 @@
 
 3. Accept the required licenses by going to `SDK Manager` under the Tools menu. Click on `SDK Tools`. Then toggle `Show Package Details`. Last, install all the Android 30.0 versions under the `Android SDK Build Tools`.
 
-4. To use your own model file, open your Lobe project, go to the Use tab, select Export, and click on the TensorFlow Lite model file. When exporting is done, rename the `.tflite` model file to `saved_model.tflite` and drag both the `saved_model.tflite` and the `signature.json` files to `app/src/main/assets`.
+4. To use your own model file, open your Lobe project, go to the Use tab, and click on the `TensorFlow Lite` model file. We recommend using the project setting `Optimize for Speed` for your model to run faster on mobile devices. You can change your project settings by going to File -> Project Settings. When exporting is done, drag both the `saved_model.tflite` and the `signature.json` files to `app/src/main/assets`.
 
 5. Head back to Android Studio and run the app by clicking on the play button. You can also use your own Android device to run the app directly on your phone.
 
